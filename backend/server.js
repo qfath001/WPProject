@@ -24,10 +24,16 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 // CORS configuration
+// CORS configuration
+const allowedOrigins = [
+  'https://wpproject-frontend.web.app',  // Your Firebase hosting URL
+  'http://localhost:3000'                 // Allow local development
+];
+
 app.use(cors({
-  origin: 'http://localhost:3000',  // frontend's URL
-  methods: ['GET', 'POST','PUT', 'DELETE'],         // Allow only the necessary methods
-  credentials: true                 // Include credentials if needed
+  origin: allowedOrigins,                  // Set the allowed origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow only the necessary methods
+  credentials: true                        // Include credentials if needed
 }));
 
 app.use(bodyParser.json());
