@@ -25,12 +25,13 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://wproject-frontend.web.app'], // Allowed origins
+  origin: 'https://wproject-frontend.web.app', // Your Firebase hosted frontend
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
-  credentials: true // Include credentials
+  credentials: true // Include credentials if needed
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight requests
 
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
