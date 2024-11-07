@@ -25,15 +25,10 @@ const app = express();
 
 // CORS configuration
 // CORS configuration
-const allowedOrigins = [
-  'https://wpproject-frontend.web.app',  // Your Firebase hosting URL
-  'http://localhost:3000'                 // Allow local development
-];
-
 app.use(cors({
-  origin: allowedOrigins,                  // Set the allowed origins
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow only the necessary methods
-  credentials: true                        // Include credentials if needed
+  origin: ['http://localhost:3000', 'https://wproject-frontend.web.app'], // Add your Firebase URL here
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow only the necessary methods
+  credentials: true // Include credentials if needed
 }));
 
 app.use(bodyParser.json());
