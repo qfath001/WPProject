@@ -23,9 +23,14 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 
+app.use((req, res, next) => {
+  console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
+  next();
+});
+
 // CORS configuration
 const corsOptions = {
-  origin: 'https://wproject-frontend.web.app', // Your Firebase hosted frontend
+  origin: ['https://wproject-frontend.web.app'], // Your Firebase hosted frontend
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
   credentials: true // Include credentials if needed
 };
