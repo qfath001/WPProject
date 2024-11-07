@@ -95,17 +95,6 @@ const generateOTP = () => {
 // Sign-up route with OTP verification
 const otps = {}; // Memory store for OTPs
 
-// Middleware to check if the user is authenticated
-const isAuthenticated = (req, res, next) => {
-  if (req.session && req.session.user) {
-    // Session exists, user is authenticated
-    next();
-  } else {
-    // User is not authenticated
-    res.status(401).json({ message: 'Unauthorized. Please log in.' });
-  }
-};
-
 app.get('/home', (req, res) => {
   if (req.session.user) {
     res.status(200).json({ message: `Welcome to the home page, ${req.session.user.email}!` });
