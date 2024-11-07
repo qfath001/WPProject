@@ -20,7 +20,7 @@ const PrerequisiteForm = () => {
     const fetchCourses = async () => {
       try {
         // Correcting the API endpoint based on your route definitions
-        const response = await axios.get('http://localhost:4000/admin/courses', { withCredentials: true });
+        const response = await axios.get('https://wpproject-backend.onrender.com/admin/courses', { withCredentials: true });
         console.log('Courses fetched from server:', response.data); // Log fetched data
         setCourses(response.data); // Set the courses in the state
         setLoading(false); // Stop loading after successful data fetch
@@ -55,7 +55,7 @@ const PrerequisiteForm = () => {
       for (const courseId of updatedCourses) {
         const course = courses.find((course) => course.id === courseId);
         await axios.post(
-          'http://localhost:4000/admin/update-course',
+          'https://wpproject-backend.onrender.com/admin/update-course',
           { id: courseId, enabled: course.enabled },
           { withCredentials: true }
         );

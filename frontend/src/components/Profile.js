@@ -23,7 +23,7 @@ const Profile = () => {
   useEffect(() => {
     const checkAuthAndFetchProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/profile', { withCredentials: true });
+        const response = await axios.get('https://wpproject-backend.onrender.com/profile', { withCredentials: true });
         if (response.status === 200) {
           setUserData(response.data);
           setFormData(response.data); // Set form data with fetched user data
@@ -77,7 +77,7 @@ const Profile = () => {
     setErrors({});
 
     try {
-      const response = await axios.post('http://localhost:4000/profile', formData, { withCredentials: true });
+      const response = await axios.post('https://wpproject-backend.onrender.com/profile', formData, { withCredentials: true });
       if (response.status === 200) {
         setUserData(response.data); // Update the displayed data
         setEditMode(null); // Exit edit mode

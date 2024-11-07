@@ -32,9 +32,9 @@ const CourseAdvisingForm = () => {
     const fetchData = async () => {
       try {
         const [enabledCoursesResponse, courseCatalogResponse, takenCoursesResponse] = await Promise.all([
-          axios.get('http://localhost:4000/advising/enabled-courses', { withCredentials: true }),
-          axios.get('http://localhost:4000/advising/course-catalog', { withCredentials: true }),
-          axios.get(`http://localhost:4000/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true }),
+          axios.get('https://wpproject-backend.onrender.com/advising/enabled-courses', { withCredentials: true }),
+          axios.get('https://wpproject-backend.onrender.com/advising/course-catalog', { withCredentials: true }),
+          axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true }),
         ]);
 
         setEnabledCourses(enabledCoursesResponse.data);
@@ -44,7 +44,7 @@ const CourseAdvisingForm = () => {
         console.log('Fetched taken courses:', takenCoursesResponse.data); // Add this log to verify
 
         if (advisingTerm && isEditable) {
-          const advisingDataResponse = await axios.get(`http://localhost:4000/advising/advising-history/${encodeURIComponent(advisingTerm)}`, { withCredentials: true });
+          const advisingDataResponse = await axios.get(`https://wpproject-backend.onrender.com/advising/advising-history/${encodeURIComponent(advisingTerm)}`, { withCredentials: true });
           const { last_term, last_gpa, prerequisites, course_plan, status } = advisingDataResponse.data;
 
           setLastTerm(last_term);
@@ -192,7 +192,7 @@ const CourseAdvisingForm = () => {
 
     try {
       if (isEditable && advisingTerm) {
-        await axios.put(`http://localhost:4000/advising/advising-history/${encodeURIComponent(advisingTerm)}`, {
+        await axios.put(`https://wpproject-backend.onrender.com/advising/advising-history/${encodeURIComponent(advisingTerm)}`, {
           lastTerm,
           lastGPA,
           advisingTerm: advisingTermField,
@@ -201,7 +201,7 @@ const CourseAdvisingForm = () => {
         }, { withCredentials: true });
         alert('Advising form updated successfully!');
       } else if (!advisingTerm) {
-        const response = await axios.post('http://localhost:4000/advising/submit-advising', {
+        const response = await axios.post('https://wpproject-backend.onrender.com/advising/submit-advising', {
           lastTerm,
           lastGPA,
           advisingTerm: advisingTermField,

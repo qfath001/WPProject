@@ -21,7 +21,7 @@ const Home = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/home', { withCredentials: true });
+        const response = await axios.get('https://wpproject-backend.onrender.com/home', { withCredentials: true });
         if (response.status !== 200) {
           navigate('/'); // Redirect to login if not authenticated
         }
@@ -63,7 +63,7 @@ const Home = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:4000/logout'); // Destroy session on the server
+      await axios.post('https://wpproject-backend.onrender.com/logout'); // Destroy session on the server
       navigate('/'); // Redirect to login page after logout
     } catch (error) {
       setMessage('Error logging out'); // Handle logout errors

@@ -22,7 +22,7 @@ const ForgotPassword = () => {
     setErrorMessage('');
 
     try {
-      const response = await axios.post('http://localhost:4000/resend-otp', {
+      const response = await axios.post('https://wpproject-backend.onrender.com/resend-otp', {
         email,
         action: 'forgot-password',
       });

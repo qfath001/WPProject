@@ -104,7 +104,7 @@ const SignUp = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:4000/signup', formData);
+      const response = await axios.post('https://wpproject-backend.onrender.com/signup', formData);
       if (response && response.status === 200) {
         window.confirm('OTP has been sent to your email. Please verify.');
         setTimeout(() => {

@@ -36,7 +36,7 @@ const ChangePassword = () => {
       } else {
         // Fetch the email from the authenticated session
         try {
-          const response = await axios.get('http://localhost:4000/profile', { withCredentials: true });
+          const response = await axios.get('https://wpproject-backend.onrender.com/profile', { withCredentials: true });
           if (response.status === 200) {
             setEmail(response.data.email); // Set the user's email from the response
           } else {
@@ -68,7 +68,7 @@ const ChangePassword = () => {
     setErrorMessage('');
 
     try {
-      const response = await axios.post('http://localhost:4000/change-password', {
+      const response = await axios.post('https://wpproject-backend.onrender.com/change-password', {
         email, // Email fetched from useEffect
         newPassword,
       });
