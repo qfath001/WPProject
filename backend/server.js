@@ -20,6 +20,7 @@ const { verifyAdmin } = require('./middleware'); // Import verifyAdmin from midd
 const studentRoutes = require('./studentRoutes'); // To import for student routes
 const advisingRoutes = require('./advisingRoutes');
 const cookieParser = require('cookie-parser');
+const { isAuthenticated, verifyAdmin } = require('./middleware');
 
 const app = express();
 
