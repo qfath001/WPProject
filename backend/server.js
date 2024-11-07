@@ -14,17 +14,24 @@ const { promisify } = require('util');  // To use async/await with DNS
 const lookupMx = promisify(dns.resolveMx);  // Promisify the MX lookup function
 const session = require('express-session');  // Add session package
 const createAdminUser = require('./createAdmin'); // Import the admin creation script
+const adminPrerequisiteRoutes = require('./adminPrerequisite');
+const adminRoutes = require('./adminRoutes'); // Path to new file
+const { verifyAdmin } = require('./middleware'); // Import verifyAdmin from middleware.js
+const studentRoutes = require('./studentRoutes'); // To import for student routes
+const advisingRoutes = require('./advisingRoutes');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
 // CORS configuration
 app.use(cors({
   origin: 'http://localhost:3000',  // frontend's URL
-  methods: ['GET', 'POST'],         // Allow only the necessary methods
+  methods: ['GET', 'POST','PUT', 'DELETE'],         // Allow only the necessary methods
   credentials: true                 // Include credentials if needed
 }));
 
 app.use(bodyParser.json());
+app.use(cookieParser()); // Add this before the routes
 
 // Configure session middleware
 app.use(session({
@@ -32,19 +39,16 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
+    httpOnly: true, // Ensures the cookie is only accessible through HTTP
     secure: false,     // Set to true if using HTTPS in production
     maxAge: 1000 * 60 * 60 * 24  // Session valid for 1 day
   }
 }));
 
-// Middleware to verify admin access
-function verifyAdmin(req, res, next) {
-  if (req.session.user && req.session.user.isAdmin) {
-    next(); // Allow access if the user is an admin
-  } else {
-    return res.status(403).json({ message: 'Access denied. Admins only.' });
-  }
-}
+app.use('/admin', adminRoutes); // Mount admin routes under /admin
+app.use('/admin', adminPrerequisiteRoutes); // Mount the admin routes under /admin
+app.use('/student', studentRoutes); // Mount student routes under /student
+app.use('/advising', advisingRoutes); // Mount advising routes
 
 // Your routes here
 app.get('/', (req, res) => {
@@ -203,7 +207,6 @@ const checkEmailDomain = async (email) => {
 };
 
 // Signup route with MX validation, required field checks, and password validation
-// Signup route with MX validation, required field checks, and password validation
 app.post('/signup', async (req, res) => {
     const { firstName, lastName, email, password, department, degree, uin } = req.body;
   
@@ -322,7 +325,7 @@ app.post('/signup', async (req, res) => {
   });  
 
   // Login route with 2FA (OTP)
-app.post('/login', (req, res) => {
+  app.post('/login', (req, res) => {
     const { email, password } = req.body;
   
     // Normalize the email to avoid case sensitivity issues
@@ -374,6 +377,15 @@ app.post('/login', (req, res) => {
   
             console.log(`OTP resent to ${email}: ${info.response}`);
   
+            // Set the session with email and admin status
+            req.session.user = {
+              email: normalizedEmail,
+              isAdmin: user.is_admin
+            };
+
+            // Log session information for debugging
+          console.log('Session after setting user:', req.session);
+  
             return res.status(200).json({ message: 'OTP resent. Please verify to continue.', email, isAdmin: user.is_admin });
           });
   
@@ -407,6 +419,15 @@ app.post('/login', (req, res) => {
   
               console.log(`OTP sent to ${email}: ${info.response}`);
   
+              // Set the session with email and admin status
+              req.session.user = {
+                email: normalizedEmail,
+                isAdmin: user.is_admin
+              };
+
+              // Log session information for debugging
+          console.log('Session after setting user:', req.session);
+
               return res.status(200).json({ message: 'OTP sent. Please verify to continue.', email, isAdmin: user.is_admin });
             });
           });
@@ -709,11 +730,12 @@ app.post('/logout', (req, res) => {
 
 // Admin dashboard route
 app.get('/admin-dashboard', verifyAdmin, (req, res) => {
+  console.log('Current session:', req.session); // Check the session
   res.status(200).json({ message: 'Welcome to the admin dashboard!' });
 });
 
 // Start the server
-const PORT = process.env.PORT || 5000;  // Use the port from environment variables or default to 5000
+const PORT = process.env.PORT || 4000;  // Use the port from environment variables or default to 5000
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

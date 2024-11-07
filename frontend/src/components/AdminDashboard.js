@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Typography, Container, Grid, IconButton, AppBar, Toolbar, Menu, MenuItem } from '@mui/material';
+import { Button, Typography, Container, Grid, IconButton, Menu, MenuItem } from '@mui/material';
 import { Home as HomeIcon, Menu as MenuIcon } from '@mui/icons-material';
-import { Facebook, Twitter, Instagram } from '@mui/icons-material';
-import adminImage from '../assets/admin-image.jpg'; // Make sure this path is correct
 import { useNavigate } from 'react-router-dom';
+import adminImage from '../assets/admin-image.jpg'; // Ensure path is correct
+import { Facebook, Twitter, Instagram } from '@mui/icons-material'; // Social media icons
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   // Set the page title when component is mounted
   useEffect(() => {
-    document.title = 'Admin Dashboard'; // Set title for the sign-in page
+    document.title = 'Admin Dashboard'; // Set title for the admin dashboard page
   }, []);
 
   // Open/Close Menu Handlers
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
-  const handleApproveAdvisingSheet = () => {
-    // Handle the Approve Advising Sheet action
+  // Navigate to the Prerequisite Form page
+  const handleNavigatePrerequisiteForm = () => {
     handleMenuClose();
+    navigate('/admin/prerequisites');
   };
 
   const handleLogout = () => {
@@ -56,7 +57,7 @@ const AdminDashboard = () => {
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
           >
-            <MenuItem onClick={handleApproveAdvisingSheet}>Approve Advising Sheet</MenuItem>
+            <MenuItem onClick={handleNavigatePrerequisiteForm}>Pre-requisite Form</MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Grid>
@@ -72,7 +73,7 @@ const AdminDashboard = () => {
             Welcome to Admin Dashboard
           </Typography>
           <Typography variant="body1">
-            Manage the Course Advising Portal here, approve advising sheets, and manage user actions.
+            Manage the Course Advising Portal here, including managing pre-requisite courses and overseeing advising actions.
           </Typography>
         </Grid>
       </Grid>

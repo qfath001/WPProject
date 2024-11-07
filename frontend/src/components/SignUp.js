@@ -16,7 +16,7 @@ const SignUp = () => {
     uin: '',
   });
 
-   /// Set the page title when component is mounted
+   // Set the page title when component is mounted
    useEffect(() => {
     document.title = 'Sign Up'; // Set title for the sign-in page
   }, []);
@@ -104,7 +104,7 @@ const SignUp = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/signup', formData);
+      const response = await axios.post('http://localhost:4000/signup', formData);
       if (response && response.status === 200) {
         window.confirm('OTP has been sent to your email. Please verify.');
         setTimeout(() => {

@@ -5,15 +5,15 @@ import {
   Container, Grid, Typography, IconButton, Menu, MenuItem, Button
 } from '@mui/material';
 import { Home as HomeIcon, Menu as MenuIcon } from '@mui/icons-material';
-import oduImage from '../assets/advising-image.jpg'; // Replace with actual image path
-import { Facebook, Twitter, Instagram } from '@mui/icons-material'; // Social media icons
+import oduImage from '../assets/advising-image.jpg';
+import { Facebook, Twitter, Instagram } from '@mui/icons-material';
 
 const Home = () => {
   const [anchorEl, setAnchorEl] = useState(null); // State for the dropdown menu
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  /// Set the page title when component is mounted
+  // Set the page title when component is mounted
   useEffect(() => {
     document.title = 'Home'; // Set title for the sign-in page
   }, []);
@@ -21,7 +21,7 @@ const Home = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/home', { withCredentials: true });
+        const response = await axios.get('http://localhost:4000/home', { withCredentials: true });
         if (response.status !== 200) {
           navigate('/'); // Redirect to login if not authenticated
         }
@@ -50,10 +50,20 @@ const Home = () => {
     handleMenuClose();
     navigate('/change-password'); // Redirect to change password page
   };
-  
+
+  const handleAdvisingHistory = () => {
+    handleMenuClose();
+    navigate('/student/advising-history'); // Redirect to Course Advising History page
+  };
+
+  const handleAdvisingForm = () => {
+    handleMenuClose();
+    navigate('/student/advising-form'); // Redirect to Course Advising Form page
+  };
+
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/logout'); // Destroy session on the server
+      await axios.post('http://localhost:4000/logout'); // Destroy session on the server
       navigate('/'); // Redirect to login page after logout
     } catch (error) {
       setMessage('Error logging out'); // Handle logout errors
@@ -87,6 +97,8 @@ const Home = () => {
           >
             <MenuItem onClick={handleViewProfile}>View Profile</MenuItem>
             <MenuItem onClick={handleChangePassword}>Change Password</MenuItem>
+            <MenuItem onClick={handleAdvisingHistory}>Advising History</MenuItem> {/* Added Advising History Menu Item */}
+            <MenuItem onClick={handleAdvisingForm}>Advising Form</MenuItem> {/* Added Advising Form Menu Item */}
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Grid>

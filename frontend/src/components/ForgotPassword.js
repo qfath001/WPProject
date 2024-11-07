@@ -11,9 +11,9 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  /// Set the page title when component is mounted
+  // Set the page title when component is mounted
   useEffect(() => {
-    document.title = 'Forgot Password'; /// Set title for the sign-in page
+    document.title = 'Forgot Password'; // Set title for the sign-in page
   }, []);
 
   const handleSendOtp = async (e) => {
@@ -22,7 +22,7 @@ const ForgotPassword = () => {
     setErrorMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/resend-otp', {
+      const response = await axios.post('http://localhost:4000/resend-otp', {
         email,
         action: 'forgot-password',
       });

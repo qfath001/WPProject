@@ -17,14 +17,14 @@ const SignIn = () => {
     document.title = 'Sign In'; // Set title for the sign-in page
   }, []);
 
-  /// Handle login and send OTP
+  // Handle login and send OTP
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/login', { email, password });
+      const response = await axios.post('http://localhost:4000/login', { email, password });
 
       // Check if OTP was sent successfully
       if (response.data.message.includes('OTP')) {

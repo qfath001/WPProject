@@ -10,7 +10,10 @@ import ForgotPassword from './components/ForgotPassword';
 import VerifyOtp from './components/VerifyOtp';
 import ChangePassword from './components/ChangePassword'; // Import ChangePassword component
 import Profile from './components/Profile'; // Import Profile component
-import AdminDashboard from './components/AdminDashboard'; /// Import AdminDashboard component
+import AdminDashboard from './components/AdminDashboard'; // Import AdminDashboard component
+import PrerequisiteForm from './components/PrerequisiteForm';  // Import PrerequisiteForm component
+import CourseAdvisingHistory from './components/CourseAdvisingHistory'; // Import CourseAdvisingHistory component
+import CourseAdvisingForm from './components/CourseAdvisingForm'; // Import the CourseAdvisingForm component
 
 const App = () => {
   return (
@@ -41,6 +44,16 @@ const App = () => {
 
           {/* Admin dashboard route */}
           <Route path="/admin-dashboard" element={<AdminDashboard />} /> {/* Added Admin Dashboard route */}
+
+          {/* Pre-requisites Form route */}
+          <Route path="/admin/prerequisites" element={<PrerequisiteForm />} />
+
+          {/* Advising History Form route */}
+          <Route path="/student/advising-history" element={<CourseAdvisingHistory />} /> {/* Added Course Advising History route */}
+
+          {/* Advising Form route */}
+          <Route path="/student/advising-form" element={<CourseAdvisingForm />} /> {/* Added Course Advising Form route */}
+
         </Routes>
       </Router>
     </ThemeProvider>

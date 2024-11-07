@@ -19,7 +19,7 @@ const VerifyOtp = () => {
     document.title = 'Verify Otp'; // Set title for the OTP verification page
   }, []);
 
-  /// Extract email, action (sign-up, login, forgot-password), and isAdmin from location.state
+  // Extract email, action (sign-up, login, forgot-password), and isAdmin from location.state
   const { email, action, isAdmin } = location.state || {};
 
   if (!email || !action) {
@@ -34,7 +34,7 @@ const VerifyOtp = () => {
     setSuccessMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/verify-otp', { email, otp, action }, { withCredentials: true });
+      const response = await axios.post('http://localhost:4000/verify-otp', { email, otp, action }, { withCredentials: true });
 
       if (response.status === 200) {
         if (action === 'signup') {
@@ -80,7 +80,7 @@ const VerifyOtp = () => {
     setSuccessMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/resend-otp', { email, action });
+      const response = await axios.post('http://localhost:4000/resend-otp', { email, action });
 
       if (response.status === 200) {
         alert('New OTP has been sent to your email.');
