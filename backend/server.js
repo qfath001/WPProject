@@ -24,12 +24,13 @@ const cookieParser = require('cookie-parser');
 const app = express();
 
 // CORS configuration
-// CORS configuration
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://wproject-frontend.web.app'], // Add your Firebase URL here
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow only the necessary methods
-  credentials: true // Include credentials if needed
-}));
+const corsOptions = {
+  origin: ['http://localhost:3000', 'https://wproject-frontend.web.app'], // Allowed origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+  credentials: true // Include credentials
+};
+
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
