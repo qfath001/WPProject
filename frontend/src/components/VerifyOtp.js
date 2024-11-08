@@ -48,13 +48,27 @@ const VerifyOtp = () => {
           setSuccessMessage('OTP verified! Redirecting to home page...');
 
           setTimeout(() => {
-            if (isAdmin) {
-              // Redirect to admin dashboard if user is an admin
-              navigate('/admin-dashboard');
-            } else {
-              // Redirect to user dashboard if user is not an admin
-              navigate('/home');
-            }
+            fetch('https://wpproject-backend.onrender.com/home', {
+              method: 'GET',
+              credentials: 'include' // Include cookies in requests
+            })
+            .then(response => {
+              if (response.status === 200) {
+                // If session is valid, check if user is admin
+                if (isAdmin) {
+                  navigate('/admin-dashboard'); // Redirect to admin dashboard if user is an admin
+                } else {
+                  navigate('/home'); // Redirect to user home page
+                }
+              } else if (response.status === 401) {
+                // If not authorized, redirect to login
+                navigate('/login');
+              }
+            })
+            .catch(error => {
+              console.error('Error accessing home route:', error);
+              navigate('/login'); // Navigate back to login on error
+            });
           }, 1500);
         } else if (action === 'forgot-password') {
           setSuccessMessage('OTP verified! Redirecting to change password page...');
