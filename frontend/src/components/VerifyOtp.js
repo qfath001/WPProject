@@ -50,7 +50,7 @@ const VerifyOtp = () => {
           setTimeout(() => {
             if (isAdmin) {
               // Redirect to admin dashboard if user is an admin
-              navigate('/home');
+              navigate('/admin-dashboard');
             } else {
               // Redirect to user dashboard if user is not an admin
               navigate('/home');
