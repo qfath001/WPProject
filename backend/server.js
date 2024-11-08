@@ -41,7 +41,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
-    secure: true,     // Set to true if using HTTPS in production
+    secure: false,     // Set to true if using HTTPS in production
     maxAge: 1000 * 60 * 60 * 24  // Session valid for 1 day
   }
 }));
@@ -514,6 +514,7 @@ app.post('/verify-otp', (req, res) => {
 
         // Store user info in session
         req.session.user = { email: normalizedEmail, isAdmin: user.is_admin };
+        console.log('User session set:', req.session.user);
 
         // Check if user is admin
         if (user.is_admin) {
