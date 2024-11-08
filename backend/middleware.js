@@ -1,6 +1,6 @@
 // Middleware to verify if the user is authenticated (logged in)
 function isAuthenticated(req, res, next) {
-    if (req.session && req.session.user) {
+    if (req.session.user) {
       next(); // Proceed if the user is authenticated
     } else {
       return res.status(401).json({ message: 'Unauthorized: Please log in' });
