@@ -23,14 +23,6 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 
-// Middleware to force HTTPS
-app.use((req, res, next) => {
-  if (req.headers['x-forwarded-proto'] !== 'https') {
-    return res.redirect(['https://', req.get('Host'), req.url].join(''));
-  }
-  next();
-});
-
 // CORS configuration
 app.use(cors({
   origin: ['https://wpproject-frontend.web.app', 'https://wpproject-frontend.firebaseapp.com'],// frontend's URL
