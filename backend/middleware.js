@@ -1,8 +1,10 @@
 // Middleware to verify if the user is authenticated (logged in)
 function isAuthenticated(req, res, next) {
+    console.log('Session:', req.session); // Log the entire session
     if (req.session.user) {
       next(); // Proceed if the user is authenticated
     } else {
+        console.log('Unauthorized access attempt'); // Log unauthorized attempts
       return res.status(401).json({ message: 'Unauthorized: Please log in' });
     }
   }

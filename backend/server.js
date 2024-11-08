@@ -107,6 +107,7 @@ const isAuthenticated = (req, res, next) => {
 };
 
 app.get('/home', (req, res) => {
+  console.log('Accessing home, session:', req.session);
   if (req.session.user) {
     res.status(200).json({ message: `Welcome to the home page, ${req.session.user.email}!` });
   } else {
