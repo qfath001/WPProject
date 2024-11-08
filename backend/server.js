@@ -36,7 +36,7 @@ app.use(cookieParser()); // Add this before the routes
 
 // Configure session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET,   // Using the strong key generated above
+  secret: 'mysecretkey',   // Using the strong key generated above
   resave: false,
   saveUninitialized: false,
   cookie: { 
