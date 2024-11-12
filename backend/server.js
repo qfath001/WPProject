@@ -13,46 +13,48 @@ const dns = require('dns'); // For checking email domain MX records
 const { promisify } = require('util');  // To use async/await with DNS
 const lookupMx = promisify(dns.resolveMx);  // Promisify the MX lookup function
 const session = require('express-session');  // Add session package
-const MySQLStore = require('express-mysql-session')(session); // Import express-mysql-session
+const MySQLStore = require('express-mysql-session')(session); // MySQL session store
 const createAdminUser = require('./createAdmin'); // Import the admin creation script
 const adminPrerequisiteRoutes = require('./adminPrerequisite');
 const adminRoutes = require('./adminRoutes'); // Path to new file
-const { verifyAdmin ,isAuthenticated } = require('./middleware'); // Import your middleware functions
+const { verifyAdmin , isAuthenticated } = require('./middleware'); // Import verifyAdmin from middleware.js
 const studentRoutes = require('./studentRoutes'); // To import for student routes
 const advisingRoutes = require('./advisingRoutes');
 const cookieParser = require('cookie-parser');
 
 const app = express();
 
-// Configure the session store (Session data will be stored in MySQL)
-const sessionStore = new MySQLStore({
+// MySQL connection configuration for session store
+const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT
 });
+
+// Create MySQL session store instance
+const sessionStore = new MySQLStore({}, db);
 
 // CORS configuration
 app.use(cors({
-  origin: 'https://wpproject-frontend.web.app', // frontend's URL
-  credentials: true, // Include credentials if needed
+  origin: 'https://wpproject-frontend.web.app',  // frontend's URL
+  methods: ['GET', 'POST','PUT', 'DELETE'],         // Allow only the necessary methods
+  credentials: true                 // Include credentials if needed
 }));
 
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
 
-// Configure session middleware
+// Configure session middleware with MySQL session store
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback-secret-key', // Use environment variable for the secret
+  secret: 'mysecretkey',   // Using the strong key generated above
   resave: false,
   saveUninitialized: false,
   store: sessionStore, // Use the MySQL session store
   cookie: { 
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
-    secure: true, // Set to true if using HTTPS in production
-    sameSite: 'None',
-    maxAge: 1000 * 60 * 60 * 24, // Session valid for 1 day
+    secure: false,     // Set to true if using HTTPS in production
+    maxAge: 1000 * 60 * 60 * 24  // Session valid for 1 day
   }
 }));
 
@@ -66,16 +68,7 @@ app.get('/', (req, res) => {
   res.send('Hello, your session is working!');
 });
 
-// MySQL database connection using environment variables for querying (optional):
-// If you need to query the database (e.g., for login), use a query like this:
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT
-});
-
+// MySQL database connection for application logic
 db.connect((err) => {
   if (err) {
     console.log('Error connecting to database', err);
