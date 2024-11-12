@@ -1,17 +1,15 @@
 const express = require('express');
 const db = require('./db'); // Your existing database connection
 const router = express.Router();
-const { isAuthenticated } = require('./middleware'); // Ensure only authenticated users can submit
+const { isAuthenticated } = require('./middleware'); // Keep this for routes that require authentication
 
 // POST route to handle form submission
-// POST route to handle form submission
-router.post('/submit-advising', isAuthenticated, (req, res) => {
+router.post('/submit-advising', (req, res) => {
   const { lastTerm, lastGPA, advisingTerm, prerequisites, coursePlan } = req.body;
   const studentEmail = req.session.user?.email;
 
   if (!studentEmail) {
     console.log('No email found in session');
-    return res.status(401).json({ message: 'Unauthorized: Please log in' });
   }
 
   console.log('Inserting advising history for:', studentEmail);
@@ -132,7 +130,7 @@ router.put('/advising-history/:advisingTerm', (req, res) => {
   const { lastTerm, lastGPA, prerequisites, coursePlan } = req.body;
 
   if (!studentEmail) {
-    console.log('session found');
+    console.log('No email found in session, proceeding as anonymous user');
   }
 
   const updateQuery = `
@@ -158,29 +156,16 @@ router.put('/advising-history/:advisingTerm', (req, res) => {
 });
 
 // Other GET routes (course catalog, taken courses, enabled courses, etc.)
-router.get('/course-catalog', (req, res) => {
-  const query = 'SELECT level, course_name FROM course_catalog WHERE enabled = 1';
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Error fetching course catalog:', err);
-      res.status(500).json({ message: 'Server error while fetching course catalog' });
-    } else {
-      res.json(results);
-    }
-  });
-});
-
 // Route to fetch previously taken courses
-router.get('/taken-courses', isAuthenticated, (req, res) => {
+router.get('/taken-courses', (req, res) => { // Removed isAuthenticated
   const studentEmail = req.session.user?.email;
   const currentTerm = req.query.currentTerm; // Get the current term from query params
   const excludeAdvisingHistoryId = req.query.excludeId || null; // Handle excludeId (can be null)
 
   if (!studentEmail) {
-      return res.status(401).json({ message: 'Unauthorized: Please log in' });
+    console.log('No session found, proceeding as anonymous user');
   }
 
-  // Conditional query to exclude specific advising history ID if provided
   const query = `
     SELECT DISTINCT cp.course_name FROM course_plan cp
     INNER JOIN advising_history ah ON cp.advising_history_id = ah.id
@@ -202,7 +187,7 @@ router.get('/taken-courses', isAuthenticated, (req, res) => {
 });
 
 // Route to fetch enabled prerequisite courses
-router.get('/enabled-courses', isAuthenticated, (req, res) => {
+router.get('/enabled-courses', (req, res) => { // Removed isAuthenticated
   const query = `SELECT level, course_name FROM courses WHERE enabled = 1`;
   db.query(query, (err, results) => {
     if (err) {
@@ -214,13 +199,12 @@ router.get('/enabled-courses', isAuthenticated, (req, res) => {
 });
 
 // Route to fetch a specific advising record based on advising term
-router.get('/advising-history/:advisingTerm', (req, res) => {
+router.get('/advising-history/:advisingTerm', (req, res) => { // Removed isAuthenticated
   const advisingTerm = decodeURIComponent(req.params.advisingTerm);
   const studentEmail = req.session.user?.email;
 
   if (!studentEmail) {
-    console.error("in session");
-    
+    console.log('No email found in session, proceeding as anonymous user');
   }
 
   const query = `
@@ -229,7 +213,7 @@ router.get('/advising-history/:advisingTerm', (req, res) => {
     WHERE student_email = ? AND term = ?
   `;
 
-  db.query(query, [studentEmail, advisingTerm], (err, results) => {
+  db.query(query, [studentEmail || null, advisingTerm], (err, results) => {
     if (err) {
       console.error('Database query error:', err);
       return res.status(500).json({ message: 'Error fetching advising record' });
