@@ -126,13 +126,13 @@ router.post('/submit-advising', isAuthenticated, (req, res) => {
 });
 
 // PUT route to update advising history
-router.put('/advising-history/:advisingTerm', isAuthenticated, (req, res) => {
+router.put('/advising-history/:advisingTerm', (req, res) => {
   const advisingTerm = decodeURIComponent(req.params.advisingTerm);
   const studentEmail = req.session.user?.email;
   const { lastTerm, lastGPA, prerequisites, coursePlan } = req.body;
 
   if (!studentEmail) {
-    return res.status(401).json({ message: 'Unauthorized: Please log in' });
+    console.log('session found');
   }
 
   const updateQuery = `
@@ -214,13 +214,13 @@ router.get('/enabled-courses', isAuthenticated, (req, res) => {
 });
 
 // Route to fetch a specific advising record based on advising term
-router.get('/advising-history/:advisingTerm', isAuthenticated, (req, res) => {
+router.get('/advising-history/:advisingTerm', (req, res) => {
   const advisingTerm = decodeURIComponent(req.params.advisingTerm);
   const studentEmail = req.session.user?.email;
 
   if (!studentEmail) {
-    console.error("Unauthorized: No student email in session");
-    return res.status(401).json({ message: 'Unauthorized: Please log in' });
+    console.error("in session");
+    
   }
 
   const query = `
