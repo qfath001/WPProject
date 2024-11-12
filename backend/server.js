@@ -36,8 +36,7 @@ const sessionStore = new MySQLStore({
 // CORS configuration
 app.use(cors({
   origin: 'https://wpproject-frontend.web.app', // frontend's URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow only the necessary methods
-  credentials: true // Include credentials if needed
+  credentials: true, // Include credentials if needed
 }));
 
 app.use(bodyParser.json());
