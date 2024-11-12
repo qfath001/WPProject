@@ -16,7 +16,7 @@ const session = require('express-session');  // Add session package
 const createAdminUser = require('./createAdmin'); // Import the admin creation script
 const adminPrerequisiteRoutes = require('./adminPrerequisite');
 const adminRoutes = require('./adminRoutes'); // Path to new file
-const { verifyAdmin } = require('./middleware'); // Import verifyAdmin from middleware.js
+const { verifyAdmin , isAuthenticated } = require('./middleware'); // Import verifyAdmin from middleware.js
 const studentRoutes = require('./studentRoutes'); // To import for student routes
 const advisingRoutes = require('./advisingRoutes');
 const cookieParser = require('cookie-parser');
@@ -95,15 +95,6 @@ const generateOTP = () => {
 const otps = {}; // Memory store for OTPs
 
 // Middleware to check if the user is authenticated
-const isAuthenticated = (req, res, next) => {
-  if (req.session && req.session.user) {
-    // Session exists, user is authenticated
-    next();
-  } else {
-    // User is not authenticated
-    res.status(401).json({ message: 'Unauthorized. Please log in.' });
-  }
-};
 
 app.get('/home', (req, res) => {
   if (req.session.user) {
