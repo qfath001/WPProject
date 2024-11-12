@@ -56,7 +56,6 @@ app.use(session({
     secure: false,     // Set to true if using HTTPS in production
     maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
     sameSite: 'none',
-    domain: 'https://wpproject-frontend.web.app'
   }
 }));
 
