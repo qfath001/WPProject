@@ -6,7 +6,6 @@ const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const MySQLStore = require('express-mysql-session')(session); // Import express-mysql-session
 const bcrypt = require('bcrypt');
 const crypto = require('crypto'); // For generating OTPs
 const nodemailer = require('nodemailer'); // For sending emails
@@ -21,6 +20,7 @@ const { verifyAdmin } = require('./middleware'); // Import verifyAdmin from midd
 const studentRoutes = require('./studentRoutes'); // To import for student routes
 const advisingRoutes = require('./advisingRoutes');
 const cookieParser = require('cookie-parser');
+const MySQLStore = require('express-mysql-session')(session); // Import express-mysql-session
 
 const app = express();
 
