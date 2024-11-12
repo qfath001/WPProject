@@ -21,7 +21,7 @@ const Home = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get('https://wpproject-backend.onrender.com/home', { withCredentials: true });
+        const response = await axios.get('http://localhost:5000/home', { withCredentials: true });
         if (response.status !== 200) {
           navigate('/'); // Redirect to login if not authenticated
         }
