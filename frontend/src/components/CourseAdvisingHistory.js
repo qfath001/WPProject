@@ -17,7 +17,7 @@ const CourseAdvisingHistory = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get('https://wpproject-backend.onrender.com/student/advising-history', { withCredentials: true });
+        const response = await axios.get('https://wpproject-backend.onrender.com/student/advising-history', { withCredentials: false });
         
         if (response.data.length === 0) {
           setHistory([]); // Set empty history if no records found
