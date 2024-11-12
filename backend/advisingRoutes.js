@@ -8,10 +8,6 @@ router.post('/submit-advising', (req, res) => {
   const { lastTerm, lastGPA, advisingTerm, prerequisites, coursePlan } = req.body;
   const studentEmail = req.session.user?.email;
 
-  if (!studentEmail) {
-    console.log('No email found in session');
-  }
-
   console.log('Inserting advising history for:', studentEmail);
 
   // Check if the advising form for the given term already exists
@@ -129,10 +125,6 @@ router.put('/advising-history/:advisingTerm', (req, res) => {
   const studentEmail = req.session.user?.email;
   const { lastTerm, lastGPA, prerequisites, coursePlan } = req.body;
 
-  if (!studentEmail) {
-    console.log('No email found in session, proceeding as anonymous user');
-  }
-
   const updateQuery = `
     UPDATE advising_history
     SET last_term = ?, last_gpa = ?, prerequisites = ?, course_plan = ?, date_submitted = NOW()
@@ -161,10 +153,6 @@ router.get('/taken-courses', (req, res) => { // Removed isAuthenticated
   const studentEmail = req.session.user?.email;
   const currentTerm = req.query.currentTerm; // Get the current term from query params
   const excludeAdvisingHistoryId = req.query.excludeId || null; // Handle excludeId (can be null)
-
-  if (!studentEmail) {
-    console.log('No session found, proceeding as anonymous user');
-  }
 
   const query = `
     SELECT DISTINCT cp.course_name FROM course_plan cp
@@ -202,10 +190,6 @@ router.get('/enabled-courses', (req, res) => { // Removed isAuthenticated
 router.get('/advising-history/:advisingTerm', (req, res) => { // Removed isAuthenticated
   const advisingTerm = decodeURIComponent(req.params.advisingTerm);
   const studentEmail = req.session.user?.email;
-
-  if (!studentEmail) {
-    console.log('No email found in session, proceeding as anonymous user');
-  }
 
   const query = `
     SELECT last_term, last_gpa, prerequisites, course_plan, status 
