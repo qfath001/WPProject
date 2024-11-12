@@ -54,7 +54,7 @@ app.use(session({
   store: sessionStore, // Use the MySQL session store
   cookie: { 
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
-    secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS in production
+    secure: true, // Set to true if using HTTPS in production
     sameSite: 'None',
     maxAge: 1000 * 60 * 60 * 24, // Session valid for 1 day
   }
@@ -123,7 +123,7 @@ const isAuthenticated = (req, res, next) => {
 
 app.get('/home', (req, res) => {
   console.log('Accessing home, session:', req.session);
-  if (req.session.user) {
+  if (req.session && req.session.user) {
     res.status(200).json({ message: `Welcome to the home page, ${req.session.user.email}!` });
   } else {
     res.status(401).json({ message: 'Unauthorized. Please log in.' });
