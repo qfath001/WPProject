@@ -33,6 +33,14 @@ const sessionStore = new MySQLStore({
   port: process.env.DB_PORT
 });
 
+sessionStore.on('connect', () => {
+  console.log('Session store connected successfully.');
+});
+
+sessionStore.on('error', (error) => {
+  console.error('Session store error:', error);
+});
+
 // CORS configuration
 app.use(cors({
   origin: 'https://wpproject-frontend.web.app',  // frontend's URL
@@ -54,6 +62,10 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
     sameSite: 'none',
     domain: 'wpproject-backend.onrender.com'
+  },
+  genid: (req) => {
+    console.log('Generating new session ID for request:', req.sessionID);
+    return req.sessionID;
   }
 }));
 
