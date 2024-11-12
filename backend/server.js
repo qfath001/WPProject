@@ -6,6 +6,7 @@ const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const MySQLStore = require('express-mysql-session')(session); // Import express-mysql-session
 const bcrypt = require('bcrypt');
 const crypto = require('crypto'); // For generating OTPs
 const nodemailer = require('nodemailer'); // For sending emails
@@ -13,18 +14,17 @@ const dns = require('dns'); // For checking email domain MX records
 const { promisify } = require('util');  // To use async/await with DNS
 const lookupMx = promisify(dns.resolveMx);  // Promisify the MX lookup function
 const session = require('express-session');  // Add session package
-const MySQLStore = require('express-mysql-session')(session); // Import express-mysql-session
 const createAdminUser = require('./createAdmin'); // Import the admin creation script
 const adminPrerequisiteRoutes = require('./adminPrerequisite');
 const adminRoutes = require('./adminRoutes'); // Path to new file
-const { verifyAdmin } = require('./middleware'); // Import your middleware functions
+const { verifyAdmin } = require('./middleware'); // Import verifyAdmin from middleware.js
 const studentRoutes = require('./studentRoutes'); // To import for student routes
 const advisingRoutes = require('./advisingRoutes');
 const cookieParser = require('cookie-parser');
 
 const app = express();
 
-// Configure the session store
+// Configure the session store (Session data will be stored in MySQL)
 const sessionStore = new MySQLStore({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -35,28 +35,23 @@ const sessionStore = new MySQLStore({
 
 // CORS configuration
 app.use(cors({
-  origin: 'https://wpproject-frontend.web.app', // frontend's URL
-  credentials: true, // Include credentials if needed
+  origin: 'https://wpproject-frontend.web.app',  // frontend's URL
+  methods: ['GET', 'POST','PUT', 'DELETE'],         // Allow only the necessary methods
+  credentials: true                 // Include credentials if needed
 }));
 
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
-app.use((req, res, next) => {
-  console.log('Cookies:', req.cookies);  // Log the cookies in each request
-  next();
-});
 
 // Configure session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback-secret-key', // Use environment variable for the secret
+  secret: 'mysecretkey',   // Using the strong key generated above
   resave: false,
   saveUninitialized: false,
-  store: sessionStore, // Use the MySQL session store
   cookie: { 
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
-    secure: true, // Set to true if using HTTPS in production
-    sameSite: 'None',
-    maxAge: 1000 * 60 * 60 * 24, // Session valid for 1 day
+    secure: true,     // Set to true if using HTTPS in production
+    maxAge: 1000 * 60 * 60 * 24  // Session valid for 1 day
   }
 }));
 
@@ -122,8 +117,7 @@ const isAuthenticated = (req, res, next) => {
 };
 
 app.get('/home', (req, res) => {
-  console.log('Accessing home, session:', req.session);
-  if (req.session && req.session.user) {
+  if (req.session.user) {
     res.status(200).json({ message: `Welcome to the home page, ${req.session.user.email}!` });
   } else {
     res.status(401).json({ message: 'Unauthorized. Please log in.' });
@@ -444,8 +438,6 @@ app.post('/signup', async (req, res) => {
 
               // Log session information for debugging
           console.log('Session after setting user:', req.session);
-          // Explicitly set the session cookie in the response header
-          res.setHeader('Set-Cookie', `connect.sid=${req.sessionID}; HttpOnly; Secure; SameSite=None; Path=/`);
 
               return res.status(200).json({ message: 'OTP sent. Please verify to continue.', email, isAdmin: user.is_admin });
             });
@@ -531,7 +523,6 @@ app.post('/verify-otp', (req, res) => {
 
         // Store user info in session
         req.session.user = { email: normalizedEmail, isAdmin: user.is_admin };
-        console.log('User session set:', req.session.user);
 
         // Check if user is admin
         if (user.is_admin) {
@@ -755,7 +746,7 @@ app.get('/admin-dashboard', verifyAdmin, (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 4000;  // Use the port from environment variables or default to 5000
+const PORT = process.env.PORT || 5000;  // Use the port from environment variables or default to 5000
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
