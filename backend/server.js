@@ -47,15 +47,15 @@ app.use(cookieParser()); // Add this before the routes
 
 // Configure session middleware with MySQL session store
 app.use(session({
-  secret: 'mysecretkey',   // Using the strong key generated above
+  secret: process.env.SESSION_SECRET,   // Using the session secret from .env
   resave: false,
   saveUninitialized: false,
   store: sessionStore, // Use the MySQL session store
   cookie: { 
-    httpOnly: true, // Ensures the cookie is only accessible through HTTP
-    secure: true,     // Set to true if using HTTPS in production
+    httpOnly: true,       // Ensures the cookie is only accessible through HTTP
+    secure: process.env.NODE_ENV === 'production',  // Set to true in production (with HTTPS)
     maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
-    sameSite: 'none',
+    sameSite: 'none',     // Allows cross-origin cookies
   }
 }));
 
