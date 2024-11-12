@@ -21,16 +21,25 @@ const Home = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('Attempting to authenticate user...'); // Log before making request
         const response = await axios.get('http://localhost:5000/home', { withCredentials: true });
+  
+        console.log('Authentication response:', response); // Log the entire response object
+  
         if (response.status !== 200) {
+          console.log('User is not authenticated, redirecting to login page.'); // Log the redirection reason
           navigate('/'); // Redirect to login if not authenticated
+        } else {
+          console.log('User is authenticated, staying on the home page.'); // Log success case
         }
       } catch (error) {
-        navigate('/'); // Redirect to login if session is invalid
+        console.error('Error during authentication check:', error); // Log any error that occurred
+        navigate('/'); // Redirect to login if session is invalid or an error occurred
       }
     };
+  
     checkAuth();
-  }, [navigate]);
+  }, [navigate]);  
 
   // Open/Close Menu Handlers
   const handleMenuOpen = (event) => {
