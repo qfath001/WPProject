@@ -24,26 +24,28 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 
+// Configure the session store
+const sessionStore = new MySQLStore({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT
+});
+
 // CORS configuration
 app.use(cors({
-  origin: ['https://wpproject-frontend.web.app'], // frontend's URL
+  origin: 'https://wpproject-frontend.web.app', // frontend's URL
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow only the necessary methods
   credentials: true // Include credentials if needed
 }));
 
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
-
-// Configure MySQL session store
-const sessionStoreOptions = {
-  connectionLimit: 10,
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT
-};
-const sessionStore = new MySQLStore(sessionStoreOptions);
+app.use((req, res, next) => {
+  console.log('Cookies:', req.cookies);  // Log the cookies in each request
+  next();
+});
 
 // Configure session middleware
 app.use(session({
@@ -55,7 +57,6 @@ app.use(session({
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
     secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS in production
     maxAge: 1000 * 60 * 60 * 24, // Session valid for 1 day
-    sameSite: 'None'
   }
 }));
 
