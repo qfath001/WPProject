@@ -45,6 +45,9 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
 
+// Tell Express to trust the first proxy (needed when using a proxy like Render or Clever Cloud)
+app.set('trust proxy', 1);
+
 // Configure session middleware with MySQL session store
 app.use(session({
   secret: process.env.SESSION_SECRET,   // Using the session secret from .env
