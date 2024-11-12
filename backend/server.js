@@ -13,15 +13,27 @@ const dns = require('dns'); // For checking email domain MX records
 const { promisify } = require('util');  // To use async/await with DNS
 const lookupMx = promisify(dns.resolveMx);  // Promisify the MX lookup function
 const session = require('express-session');  // Add session package
+const MySQLStore = require('express-mysql-session')(session); // MySQL session store
 const createAdminUser = require('./createAdmin'); // Import the admin creation script
 const adminPrerequisiteRoutes = require('./adminPrerequisite');
 const adminRoutes = require('./adminRoutes'); // Path to new file
-const { verifyAdmin , isAuthenticated} = require('./middleware'); // Import verifyAdmin from middleware.js
+const { verifyAdmin , isAuthenticated } = require('./middleware'); // Import verifyAdmin from middleware.js
 const studentRoutes = require('./studentRoutes'); // To import for student routes
 const advisingRoutes = require('./advisingRoutes');
 const cookieParser = require('cookie-parser');
 
 const app = express();
+
+// MySQL connection configuration for session store
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
+
+// Create MySQL session store instance
+const sessionStore = new MySQLStore({}, db);
 
 // CORS configuration
 app.use(cors({
@@ -33,14 +45,15 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
 
-// Configure session middleware
+// Configure session middleware with MySQL session store
 app.use(session({
   secret: 'mysecretkey',   // Using the strong key generated above
   resave: false,
   saveUninitialized: false,
+  store: sessionStore, // Use the MySQL session store
   cookie: { 
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
-    secure: true,     // Set to true if using HTTPS in production
+    secure: false,     // Set to true if using HTTPS in production
     maxAge: 1000 * 60 * 60 * 24  // Session valid for 1 day
   }
 }));
@@ -55,14 +68,7 @@ app.get('/', (req, res) => {
   res.send('Hello, your session is working!');
 });
 
-// MySQL database connection using environment variables
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
-
+// MySQL database connection for application logic
 db.connect((err) => {
   if (err) {
     console.log('Error connecting to database', err);
@@ -95,9 +101,12 @@ const generateOTP = () => {
 const otps = {}; // Memory store for OTPs
 
 // Middleware to check if the user is authenticated
-
-app.get('/home', isAuthenticated, (req, res) => {
-  res.status(200).json({ message: `Welcome to the home page, ${req.session.user.email}!` });
+app.get('/home', (req, res) => {
+  if (req.session.user) {
+    res.status(200).json({ message: `Welcome to the home page, ${req.session.user.email}!` });
+  } else {
+    res.status(401).json({ message: 'Unauthorized. Please log in.' });
+  }
 });
 
 // Profile route - to get user profile details
