@@ -22,7 +22,7 @@ const Home = () => {
     const checkAuth = async () => {
       try {
         console.log('Attempting to authenticate user...'); // Log before making request
-        const response = await axios.get('http://localhost:5000/home', { withCredentials: true });
+        const response = await axios.get('https://wpproject-backend.onrender.com/home', { withCredentials: true });
   
         console.log('Authentication response:', response); // Log the entire response object
   
