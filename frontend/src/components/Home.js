@@ -21,19 +21,16 @@ const Home = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get('https://wpproject-backend.onrender.com/home', { withCredentials: true });t
-  
+        const response = await axios.get('https://wpproject-backend.onrender.com/home', { withCredentials: true });
         if (response.status !== 200) {
-         // console.log('User is not authenticated, redirecting to login page.'); // Log the redirection reason
-          navigate('/home'); // Redirect to login if not authenticated
+          navigate('/'); // Redirect to login if not authenticated
         }
       } catch (error) {
-        navigate('/home'); // Redirect to login if session is invalid or an error occurred
+        navigate('/'); // Redirect to login if session is invalid
       }
     };
-  
     checkAuth();
-  }, [navigate]);  
+  }, [navigate]); 
 
   // Open/Close Menu Handlers
   const handleMenuOpen = (event) => {

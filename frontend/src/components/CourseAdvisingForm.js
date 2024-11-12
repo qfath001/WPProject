@@ -30,9 +30,9 @@ const CourseAdvisingForm = () => {
     const fetchData = async () => {
       try {
         const [enabledCoursesResponse, courseCatalogResponse, takenCoursesResponse] = await Promise.all([
-          axios.get('https://wpproject-backend.onrender.com/advising/enabled-courses'),
-          axios.get('https://wpproject-backend.onrender.com/advising/course-catalog'),
-          axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`),
+          axios.get('https://wpproject-backend.onrender.com/advising/enabled-courses', { withCredentials: true }),
+          axios.get('https://wpproject-backend.onrender.com/advising/course-catalog', { withCredentials: true }),
+          axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true }),
         ]);
 
         setEnabledCourses(enabledCoursesResponse.data);
@@ -40,7 +40,7 @@ const CourseAdvisingForm = () => {
         setTakenCourses(takenCoursesResponse.data);
 
         if (advisingTerm) {
-          const advisingDataResponse = await axios.get(`https://wpproject-backend.onrender.com/advising/advising-history/${encodeURIComponent(advisingTerm)}`);
+          const advisingDataResponse = await axios.get(`https://wpproject-backend.onrender.com/advising/advising-history/${encodeURIComponent(advisingTerm)}`, { withCredentials: true });
           const { last_term, last_gpa, prerequisites, course_plan, status } = advisingDataResponse.data;
 
           setLastTerm(last_term);
@@ -174,7 +174,7 @@ const CourseAdvisingForm = () => {
 
     try {
     // Fetch the latest taken courses before validation
-    const response = await axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`);
+    const response = await axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true });
     const latestTakenCourses = response.data.map(c => c.trim().toLowerCase());
 
     for (let course of coursePlan) {
@@ -204,7 +204,7 @@ const CourseAdvisingForm = () => {
   
     // Fetch the latest taken courses before validation
     try {
-      const response = await axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`);
+      const response = await axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true });
       const latestTakenCourses = response.data.map(c => c.trim().toLowerCase());
       setTakenCourses(latestTakenCourses); // Update the state with the latest courses
     } catch (error) {
