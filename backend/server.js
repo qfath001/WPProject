@@ -26,7 +26,7 @@ const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: ['https://wpproject-frontend.web.app', 'https://wpproject-frontend.firebaseapp.com'], // frontend's URL
+  origin: ['https://wpproject-frontend.web.app'], // frontend's URL
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow only the necessary methods
   credentials: true // Include credentials if needed
 }));
