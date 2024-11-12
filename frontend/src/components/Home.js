@@ -22,6 +22,7 @@ const Home = () => {
     const checkAuth = async () => {
       try {
         const response = await axios.get('https://wpproject-backend.onrender.com/home', { withCredentials: true });
+        console.log(response); 
         if (response.status !== 200) {
           navigate('/'); // Redirect to login if not authenticated
         }
