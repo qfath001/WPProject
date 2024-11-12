@@ -12,13 +12,11 @@ const CourseAdvisingForm = () => {
   const queryParams = new URLSearchParams(location.search);
   const advisingTerm = queryParams.get('advisingTerm');
   const statusFromParams = queryParams.get('status');
-  
+
   const [lastTerm, setLastTerm] = useState('');
   const [lastGPA, setLastGPA] = useState('');
   const [status, setStatus] = useState(statusFromParams || '');
   const [advisingTermField, setAdvisingTerm] = useState(advisingTerm || '');
-  const [originalLastTerm, setOriginalLastTerm] = useState(''); // Track original last term
-  const [originalAdvisingTerm, setOriginalAdvisingTerm] = useState(''); // Track original advising term
   const [enablePrerequisites, setEnablePrerequisites] = useState(true);
   const [prerequisites, setPrerequisites] = useState([]);
   const [coursePlan, setCoursePlan] = useState([]);
@@ -26,7 +24,7 @@ const CourseAdvisingForm = () => {
   const [enabledCourses, setEnabledCourses] = useState([]);
   const [coursePlanCatalog, setCoursePlanCatalog] = useState([]);
   const [takenCourses, setTakenCourses] = useState([]);
-  const isEditable = status === 'Pending';
+  const isEditable = !advisingTerm || status === 'Pending'; // Editable if new form or status is 'Pending'
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,9 +39,7 @@ const CourseAdvisingForm = () => {
         setCoursePlanCatalog(courseCatalogResponse.data);
         setTakenCourses(takenCoursesResponse.data);
 
-        console.log('Fetched taken courses:', takenCoursesResponse.data); // Add this log to verify
-
-        if (advisingTerm && isEditable) {
+        if (advisingTerm) {
           const advisingDataResponse = await axios.get(`https://wpproject-backend.onrender.com/advising/advising-history/${encodeURIComponent(advisingTerm)}`, { withCredentials: true });
           const { last_term, last_gpa, prerequisites, course_plan, status } = advisingDataResponse.data;
 
@@ -52,10 +48,6 @@ const CourseAdvisingForm = () => {
           setPrerequisites(prerequisites || []);
           setCoursePlan(course_plan || []);
           setStatus(status);
-
-          // Set original values
-          setOriginalLastTerm(last_term);
-          setOriginalAdvisingTerm(advisingTerm);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -63,74 +55,90 @@ const CourseAdvisingForm = () => {
       }
     };
     fetchData();
-  }, [advisingTerm, advisingTermField, isEditable]);
+  }, [advisingTerm, advisingTermField]);
 
   const handleAddPrerequisite = () => {
-    if (enablePrerequisites) {
+    if (enablePrerequisites && isEditable) {
       setPrerequisites([...prerequisites, { level: '', courseName: '' }]);
     }
   };
 
   const handleDeletePrerequisite = (index) => {
-    const updatedPrerequisites = prerequisites.filter((_, i) => i !== index);
-    setPrerequisites(updatedPrerequisites);
+    if (isEditable) {
+      const updatedPrerequisites = prerequisites.filter((_, i) => i !== index);
+      setPrerequisites(updatedPrerequisites);
+    }
   };
 
   const handleChangePrerequisiteLevel = (index, value) => {
-    const updatedPrerequisites = prerequisites.map((prerequisite, i) => {
-      if (i === index) {
-        return { ...prerequisite, level: value, courseName: '' };
-      }
-      return prerequisite;
-    });
-    setPrerequisites(updatedPrerequisites);
+    if (isEditable) {
+      const updatedPrerequisites = prerequisites.map((prerequisite, i) => {
+        if (i === index) {
+          return { ...prerequisite, level: value, courseName: '' };
+        }
+        return prerequisite;
+      });
+      setPrerequisites(updatedPrerequisites);
+    }
   };
 
   const handleChangePrerequisiteCourse = (index, value) => {
-    const updatedPrerequisites = prerequisites.map((prerequisite, i) => {
-      if (i === index) {
-        return { ...prerequisite, courseName: value };
-      }
-      return prerequisite;
-    });
-    setPrerequisites(updatedPrerequisites);
+    if (isEditable) {
+      const updatedPrerequisites = prerequisites.map((prerequisite, i) => {
+        if (i === index) {
+          return { ...prerequisite, courseName: value };
+        }
+        return prerequisite;
+      });
+      setPrerequisites(updatedPrerequisites);
+    }
   };
 
   const handlePrerequisiteCheckboxChange = (event) => {
-    const checked = event.target.checked;
-    setEnablePrerequisites(!checked);
-    if (checked) {
-      setPrerequisites([]); // Clear prerequisites if checkbox is checked
+    if (isEditable) {
+      const checked = event.target.checked;
+      setEnablePrerequisites(!checked);
+      if (checked) {
+        setPrerequisites([]); // Clear prerequisites if checkbox is checked
+      }
     }
   };
 
   const handleAddCoursePlan = () => {
-    setCoursePlan([...coursePlan, { level: '', courseName: '' }]);
+    if (isEditable) {
+      setCoursePlan([...coursePlan, { level: '', courseName: '' }]);
+    }
   };
 
   const handleDeleteCoursePlan = (index) => {
-    const updatedCoursePlan = coursePlan.filter((_, i) => i !== index);
-    setCoursePlan(updatedCoursePlan);
+    if (isEditable) {
+      const updatedCoursePlan = coursePlan.filter((_, i) => i !== index);
+      setCoursePlan(updatedCoursePlan);
+    }
   };
 
   const handleChangeCoursePlanLevel = (index, value) => {
-    const updatedCoursePlan = coursePlan.map((course, i) => {
-      if (i === index) {
-        return { ...course, level: value, courseName: '' };
-      }
-      return course;
-    });
-    setCoursePlan(updatedCoursePlan);
+    if (isEditable) {
+      const updatedCoursePlan = coursePlan.map((course, i) => {
+        if (i === index) {
+          return { ...course, level: value, courseName: '' };
+        }
+        return course;
+      });
+      setCoursePlan(updatedCoursePlan);
+    }
   };
 
   const handleChangeCoursePlanCourse = (index, value) => {
-    const updatedCoursePlan = coursePlan.map((course, i) => {
-      if (i === index) {
-        return { ...course, courseName: value };
-      }
-      return course;
-    });
-    setCoursePlan(updatedCoursePlan);
+    if (isEditable) {
+      const updatedCoursePlan = coursePlan.map((course, i) => {
+        if (i === index) {
+          return { ...course, courseName: value };
+        }
+        return course;
+      });
+      setCoursePlan(updatedCoursePlan);
+    }
   };
 
   const getUniqueLevels = (minLevel, maxLevel, courses) => {
@@ -142,7 +150,7 @@ const CourseAdvisingForm = () => {
     return courses.filter(course => course.level === level);
   };
 
-  const validateForm = () => {
+  const validateForm = async () => {
     if (!lastTerm || !lastGPA || !advisingTermField) {
       setError('Last Term, Last GPA, and Advising Term are mandatory.');
       return false;
@@ -163,44 +171,61 @@ const CourseAdvisingForm = () => {
       setError('Duplicate courses are selected in the Course Plan section.');
       return false;
     }
-    // Normalize and compare taken courses
-  console.log('Course Plan being validated:', coursePlan); // Debugging log
-  console.log('Taken Courses for validation:', takenCourses); // Debugging log
-    // Normalize and compare taken courses
+
+    try {
+    // Fetch the latest taken courses before validation
+    const response = await axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true });
+    const latestTakenCourses = response.data.map(c => c.trim().toLowerCase());
+
     for (let course of coursePlan) {
       const courseNameNormalized = course.courseName.trim().toLowerCase();
-      const takenCoursesNormalized = takenCourses.map(c => c.trim().toLowerCase());
-      if (takenCoursesNormalized.includes(courseNameNormalized)) {
+      if (latestTakenCourses.includes(courseNameNormalized)) {
         setError(`The course \"${course.courseName}\" has already been taken in previous terms.`);
         return false;
       }
-    }    
+    }
+  } catch (error) {
+    console.error('Error fetching latest taken courses:', error);
+    setError('Failed to validate the form due to a data fetching error.');
+    return false;
+  }
+
     setError('');
     return true;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    // Validate fields before proceeding
-    if (isEditable && (lastTerm !== originalLastTerm || advisingTermField !== originalAdvisingTerm)) {
-      setError('Last term and Advising term cannot be changed while editing.');
+  
+    if (!isEditable) {
+      setError('This form is not editable.');
       return;
     }
-
-    if (!validateForm()) return;
-
+  
+    // Fetch the latest taken courses before validation
     try {
-      if (isEditable && advisingTerm) {
+      const response = await axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true });
+      const latestTakenCourses = response.data.map(c => c.trim().toLowerCase());
+      setTakenCourses(latestTakenCourses); // Update the state with the latest courses
+    } catch (error) {
+      console.error('Error fetching latest taken courses:', error);
+      setError('Failed to fetch the latest taken courses. Please try again.');
+      return;
+    }
+  
+    if (!await validateForm()) return; // Ensure validateForm is called after fetching latest courses
+  
+    try {
+      if (advisingTerm) {
         await axios.put(`https://wpproject-backend.onrender.com/advising/advising-history/${encodeURIComponent(advisingTerm)}`, {
           lastTerm,
           lastGPA,
           advisingTerm: advisingTermField,
-          prerequisites: enablePrerequisites ? prerequisites : [], // Ensure empty array if no prerequisites
+          prerequisites: enablePrerequisites ? prerequisites : [],
           coursePlan,
         }, { withCredentials: true });
         alert('Advising form updated successfully!');
-      } else if (!advisingTerm) {
+      } else {
         const response = await axios.post('https://wpproject-backend.onrender.com/advising/submit-advising', {
           lastTerm,
           lastGPA,
@@ -214,14 +239,12 @@ const CourseAdvisingForm = () => {
           alert('Form submitted successfully!');
           navigate('/student/advising-history');
         }
-      } else {
-        setError('This advising record is not editable.');
       }
     } catch (error) {
       console.error('Error submitting form:', error);
       setError(error.response?.data?.message || 'Failed to submit the form. Please try again.');
     }
-  };
+  };  
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
@@ -229,68 +252,57 @@ const CourseAdvisingForm = () => {
         <IconButton style={{ float: 'right' }} onClick={() => navigate('/home')}>
           <HomeIcon />
         </IconButton>
-  
+
         <Typography variant="h4" gutterBottom>
           Course Advising Form
         </Typography>
-  
+
         {error && <Alert severity="error">{error}</Alert>}
-  
-        {/* History Section */}
-<Typography variant="h6">History</Typography>
-<Grid container spacing={2}>
-  <Grid item xs={12} sm={4}>
-    <TextField 
-      label="Last Term" 
-      value={lastTerm || ''} 
-      onChange={(e) => {
-        if (!isEditable) {
-          setLastTerm(e.target.value);
-        } else {
-          setError('Last term cannot be changed while editing.');
-        }
-      }} 
-      fullWidth 
-      required 
-      disabled={isEditable} // Disable when form is being edited
-    />
-  </Grid>
-  <Grid item xs={12} sm={4}>
-    <TextField 
-      label="Last GPA" 
-      value={lastGPA || ''} 
-      onChange={(e) => setLastGPA(e.target.value)} 
-      fullWidth 
-      required 
-    />
-  </Grid>
-  <Grid item xs={12} sm={4}>
-    <TextField 
-      label="Advising Term" 
-      value={advisingTermField || ''} 
-      onChange={(e) => {
-        if (!isEditable) {
-          setAdvisingTerm(e.target.value);
-        } else {
-          setError('Advising term cannot be changed while editing.');
-        }
-      }} 
-      fullWidth 
-      required 
-      disabled={isEditable} // Disable when form is being edited
-    />
-  </Grid>
-</Grid>
+
+        {/* History Fields */}
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Last Term"
+              value={lastTerm || ''}
+              onChange={(e) => setLastTerm(e.target.value)}
+              fullWidth
+              required
+              disabled={!isEditable}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Last GPA"
+              value={lastGPA || ''}
+              onChange={(e) => setLastGPA(e.target.value)}
+              fullWidth
+              required
+              disabled={!isEditable}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Advising Term"
+              value={advisingTermField || ''}
+              onChange={(e) => setAdvisingTerm(e.target.value)}
+              fullWidth
+              required
+              disabled={!isEditable}
+            />
+          </Grid>
+        </Grid>
 
         {/* Prerequisites Section */}
         <Typography variant="h6" style={{ marginTop: '20px' }}>Prerequisites</Typography>
-        <Checkbox 
-          checked={!enablePrerequisites} 
-          onChange={(e) => setEnablePrerequisites(!e.target.checked)} 
-          color="primary" 
+        <Checkbox
+          checked={!enablePrerequisites}
+          onChange={handlePrerequisiteCheckboxChange}
+          color="primary"
+          disabled={!isEditable}
         />
         Please check the box if the student has no prerequisite
-  
+
         {enablePrerequisites &&
           (prerequisites || []).map((prerequisite, index) => (
             <Grid container spacing={2} key={`prerequisite-${index}`}>
@@ -300,6 +312,7 @@ const CourseAdvisingForm = () => {
                   onChange={(e) => handleChangePrerequisiteLevel(index, e.target.value)}
                   fullWidth
                   required
+                  disabled={!isEditable}
                 >
                   {getUniqueLevels(100, 300, enabledCourses).map((level) => (
                     <MenuItem key={level} value={level}>
@@ -314,7 +327,7 @@ const CourseAdvisingForm = () => {
                   onChange={(e) => handleChangePrerequisiteCourse(index, e.target.value)}
                   fullWidth
                   required
-                  disabled={!prerequisite.level} // Disable if level isn't selected
+                  disabled={!isEditable || !prerequisite.level}
                 >
                   {getCoursesByLevel(prerequisite.level, enabledCourses).map(course => (
                     <MenuItem key={course.id} value={course.course_name}>
@@ -324,18 +337,18 @@ const CourseAdvisingForm = () => {
                 </Select>
               </Grid>
               <Grid item xs={12} sm={1}>
-                <IconButton onClick={() => handleDeletePrerequisite(index)} sx={{ color: 'gray' }}>
+                <IconButton onClick={() => handleDeletePrerequisite(index)} sx={{ color: 'gray' }} disabled={!isEditable}>
                   <DeleteIcon />
                 </IconButton>
               </Grid>
             </Grid>
           ))}
-        {enablePrerequisites && (
+        {enablePrerequisites && isEditable && (
           <IconButton onClick={handleAddPrerequisite} color="primary">
             <AddCircleIcon /> Add Prerequisite
           </IconButton>
         )}
-  
+
         {/* Course Plan Section */}
         <Typography variant="h6" style={{ marginTop: '20px' }}>Course Plan</Typography>
         {(coursePlan || []).map((course, index) => (
@@ -346,6 +359,7 @@ const CourseAdvisingForm = () => {
                 onChange={(e) => handleChangeCoursePlanLevel(index, e.target.value)}
                 fullWidth
                 required
+                disabled={!isEditable}
               >
                 {getUniqueLevels(400, 800, coursePlanCatalog).map((level) => (
                   <MenuItem key={level} value={level}>
@@ -360,7 +374,7 @@ const CourseAdvisingForm = () => {
                 onChange={(e) => handleChangeCoursePlanCourse(index, e.target.value)}
                 fullWidth
                 required
-                disabled={!course.level} // Disable if level isn't selected
+                disabled={!isEditable || !course.level}
               >
                 {getCoursesByLevel(course.level, coursePlanCatalog).map(course => (
                   <MenuItem key={course.id} value={course.course_name}>
@@ -370,30 +384,39 @@ const CourseAdvisingForm = () => {
               </Select>
             </Grid>
             <Grid item xs={12} sm={1}>
-              <IconButton onClick={() => handleDeleteCoursePlan(index)} sx={{ color: 'gray' }}>
+              <IconButton onClick={() => handleDeleteCoursePlan(index)} sx={{ color: 'gray' }} disabled={!isEditable}>
                 <DeleteIcon />
               </IconButton>
             </Grid>
           </Grid>
         ))}
-        <IconButton onClick={handleAddCoursePlan} color="primary">
-          <AddCircleIcon /> Add Course Plan
-        </IconButton>
-  
-        {/* Submit Section */}
-        <Box mt={4}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            style={{ backgroundColor: 'primary', color: '#fff' }} // Sets blue background and white text
-          >
-            {advisingTerm ? 'Update Advising Form' : 'Submit Advising Form'}
-          </Button>
-        </Box>
+        {isEditable && (
+          <IconButton onClick={handleAddCoursePlan} color="primary">
+            <AddCircleIcon /> Add Course Plan
+          </IconButton>
+        )}
+
+        {/* Submit Button */}
+        {isEditable && (
+          <Box mt={4}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              style={{ backgroundColor: 'primary', color: '#fff' }}
+            >
+              {advisingTerm ? 'Update Advising Form' : 'Submit Advising Form'}
+            </Button>
+          </Box>
+        )}
+        {!isEditable && (
+          <Typography variant="body2" color="textSecondary" mt={4}>
+            This form is read-only. Editing is not allowed for the selected status.
+          </Typography>
+        )}
       </Container>
     </Box>
-  );  
+  );
 };
 
 export default CourseAdvisingForm;

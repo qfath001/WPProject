@@ -174,43 +174,30 @@ router.get('/course-catalog', (req, res) => {
 router.get('/taken-courses', isAuthenticated, (req, res) => {
   const studentEmail = req.session.user?.email;
   const currentTerm = req.query.currentTerm; // Get the current term from query params
+  const excludeAdvisingHistoryId = req.query.excludeId || null; // Handle excludeId (can be null)
 
   if (!studentEmail) {
       return res.status(401).json({ message: 'Unauthorized: Please log in' });
   }
 
-  // Adjusted query with case-insensitive comparison for term
+  // Conditional query to exclude specific advising history ID if provided
   const query = `
     SELECT DISTINCT cp.course_name FROM course_plan cp
     INNER JOIN advising_history ah ON cp.advising_history_id = ah.id
     WHERE ah.student_email = ? AND LOWER(ah.term) != LOWER(?)
+    ${excludeAdvisingHistoryId ? 'AND ah.id != ?' : ''}
   `;
 
-  // Debugging logs to verify parameters and query
-  console.log('Fetching taken courses for:', studentEmail, 'excluding term:', currentTerm);
-  console.log('Query:', query);
+  const params = excludeAdvisingHistoryId ? [studentEmail, currentTerm, excludeAdvisingHistoryId] : [studentEmail, currentTerm];
 
-  db.query(query, [studentEmail, currentTerm], (err, results) => {
+  db.query(query, params, (err, results) => {
       if (err) {
           console.error('Error fetching taken courses:', err);
           return res.status(500).json({ message: 'Error fetching taken courses' });
       }
 
       const takenCourses = results.map(row => row.course_name);
-      console.log('Taken courses:', takenCourses); // Log fetched courses for debugging
       res.json(takenCourses);
-  });
-});
-
-// Route to fetch all prerequisites
-router.get('/prerequisites', (req, res) => {
-  const query = 'SELECT * FROM prerequisites';
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Error fetching prerequisites:', err);
-      return res.status(500).json({ message: 'Server error while fetching prerequisites' });
-    }
-    res.json(results);
   });
 });
 
