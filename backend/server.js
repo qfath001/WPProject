@@ -42,7 +42,8 @@ app.use(session({
   cookie: { 
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
     secure: true,     // Set to true if using HTTPS in production
-    maxAge: 1000 * 60 * 60 * 24  // Session valid for 1 day
+    maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
+    sameSite: 'None'
   }
 }));
 
