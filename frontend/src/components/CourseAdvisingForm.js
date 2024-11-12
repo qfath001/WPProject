@@ -30,9 +30,9 @@ const CourseAdvisingForm = () => {
     const fetchData = async () => {
       try {
         const [enabledCoursesResponse, courseCatalogResponse, takenCoursesResponse] = await Promise.all([
-          axios.get('https://wpproject-backend.onrender.com/advising/enabled-courses', { withCredentials: true }),
-          axios.get('https://wpproject-backend.onrender.com/advising/course-catalog', { withCredentials: true }),
-          axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true }),
+          axios.get('http://localhost:5000/advising/enabled-courses', { withCredentials: true }),
+          axios.get('http://localhost:5000/advising/course-catalog', { withCredentials: true }),
+          axios.get(`http://localhost:5000/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true }),
         ]);
 
         setEnabledCourses(enabledCoursesResponse.data);
@@ -40,7 +40,7 @@ const CourseAdvisingForm = () => {
         setTakenCourses(takenCoursesResponse.data);
 
         if (advisingTerm) {
-          const advisingDataResponse = await axios.get(`https://wpproject-backend.onrender.com/advising/advising-history/${encodeURIComponent(advisingTerm)}`, { withCredentials: true });
+          const advisingDataResponse = await axios.get(`http://localhost:5000/advising/advising-history/${encodeURIComponent(advisingTerm)}`, { withCredentials: true });
           const { last_term, last_gpa, prerequisites, course_plan, status } = advisingDataResponse.data;
 
           setLastTerm(last_term);
@@ -150,7 +150,7 @@ const CourseAdvisingForm = () => {
     return courses.filter(course => course.level === level);
   };
 
-  const validateForm = async () => {
+  const validateForm = () => {
     if (!lastTerm || !lastGPA || !advisingTermField) {
       setError('Last Term, Last GPA, and Advising Term are mandatory.');
       return false;
@@ -172,52 +172,31 @@ const CourseAdvisingForm = () => {
       return false;
     }
 
-    try {
-    // Fetch the latest taken courses before validation
-    const response = await axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true });
-    const latestTakenCourses = response.data.map(c => c.trim().toLowerCase());
-
     for (let course of coursePlan) {
       const courseNameNormalized = course.courseName.trim().toLowerCase();
-      if (latestTakenCourses.includes(courseNameNormalized)) {
+      const takenCoursesNormalized = takenCourses.map(c => c.trim().toLowerCase());
+      if (takenCoursesNormalized.includes(courseNameNormalized)) {
         setError(`The course \"${course.courseName}\" has already been taken in previous terms.`);
         return false;
       }
-    }
-  } catch (error) {
-    console.error('Error fetching latest taken courses:', error);
-    setError('Failed to validate the form due to a data fetching error.');
-    return false;
-  }
-
+    }    
     setError('');
     return true;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     if (!isEditable) {
       setError('This form is not editable.');
       return;
     }
-  
-    // Fetch the latest taken courses before validation
-    try {
-      const response = await axios.get(`https://wpproject-backend.onrender.com/advising/taken-courses?currentTerm=${encodeURIComponent(advisingTermField)}`, { withCredentials: true });
-      const latestTakenCourses = response.data.map(c => c.trim().toLowerCase());
-      setTakenCourses(latestTakenCourses); // Update the state with the latest courses
-    } catch (error) {
-      console.error('Error fetching latest taken courses:', error);
-      setError('Failed to fetch the latest taken courses. Please try again.');
-      return;
-    }
-  
-    if (!await validateForm()) return; // Ensure validateForm is called after fetching latest courses
-  
+
+    if (!validateForm()) return;
+
     try {
       if (advisingTerm) {
-        await axios.put(`https://wpproject-backend.onrender.com/advising/advising-history/${encodeURIComponent(advisingTerm)}`, {
+        await axios.put(`http://localhost:5000/advising/advising-history/${encodeURIComponent(advisingTerm)}`, {
           lastTerm,
           lastGPA,
           advisingTerm: advisingTermField,
@@ -226,7 +205,7 @@ const CourseAdvisingForm = () => {
         }, { withCredentials: true });
         alert('Advising form updated successfully!');
       } else {
-        const response = await axios.post('https://wpproject-backend.onrender.com/advising/submit-advising', {
+        const response = await axios.post('http://localhost:5000/advising/submit-advising', {
           lastTerm,
           lastGPA,
           advisingTerm: advisingTermField,
@@ -244,7 +223,7 @@ const CourseAdvisingForm = () => {
       console.error('Error submitting form:', error);
       setError(error.response?.data?.message || 'Failed to submit the form. Please try again.');
     }
-  };  
+  };
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
