@@ -16,30 +16,12 @@ const session = require('express-session');  // Add session package
 const createAdminUser = require('./createAdmin'); // Import the admin creation script
 const adminPrerequisiteRoutes = require('./adminPrerequisite');
 const adminRoutes = require('./adminRoutes'); // Path to new file
-const { verifyAdmin , isAuthenticated } = require('./middleware'); // Import verifyAdmin from middleware.js
+const { verifyAdmin, isAuthenticated } = require('./middleware'); // Import verifyAdmin from middleware.js
 const studentRoutes = require('./studentRoutes'); // To import for student routes
 const advisingRoutes = require('./advisingRoutes');
 const cookieParser = require('cookie-parser');
-const MySQLStore = require('express-mysql-session')(session); // Import express-mysql-session
 
 const app = express();
-
-// Configure the session store (Session data will be stored in MySQL)
-const sessionStore = new MySQLStore({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT
-});
-
-sessionStore.on('connect', () => {
-  console.log('Session store connected successfully.');
-});
-
-sessionStore.on('error', (error) => {
-  console.error('Session store error:', error);
-});
 
 // CORS configuration
 app.use(cors({
@@ -59,13 +41,7 @@ app.use(session({
   cookie: { 
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
     secure: true,     // Set to true if using HTTPS in production
-    maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
-    sameSite: 'none',
-    domain: 'wpproject-backend.onrender.com'
-  },
-  genid: (req) => {
-    console.log('Generating new session ID for request:', req.sessionID);
-    return req.sessionID;
+    maxAge: 1000 * 60 * 60 * 24  // Session valid for 1 day
   }
 }));
 
@@ -85,8 +61,6 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-  connectionLimit: 10
 });
 
 db.connect((err) => {
@@ -119,6 +93,8 @@ const generateOTP = () => {
 
 // Sign-up route with OTP verification
 const otps = {}; // Memory store for OTPs
+
+// Middleware to check if the user is authenticated
 
 app.get('/home', (req, res) => {
   if (req.session.user) {
