@@ -52,7 +52,8 @@ app.use(session({
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
     secure: true,     // Set to true if using HTTPS in production
     maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
-    sameSite: 'none'
+    sameSite: 'none',
+    domain: 'wpproject-backend.onrender.com'
   }
 }));
 
