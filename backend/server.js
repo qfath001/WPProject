@@ -13,6 +13,7 @@ const dns = require('dns'); // For checking email domain MX records
 const { promisify } = require('util');  // To use async/await with DNS
 const lookupMx = promisify(dns.resolveMx);  // Promisify the MX lookup function
 const session = require('express-session');  // Add session package
+const MySQLStore = require('express-mysql-session')(session); // Import express-mysql-session
 const createAdminUser = require('./createAdmin'); // Import the admin creation script
 const adminPrerequisiteRoutes = require('./adminPrerequisite');
 const adminRoutes = require('./adminRoutes'); // Path to new file
@@ -25,24 +26,34 @@ const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: ['https://wpproject-frontend.web.app', 'https://wpproject-frontend.firebaseapp.com'],// frontend's URL
-  methods: ['GET', 'POST','PUT', 'DELETE'],         // Allow only the necessary methods
-  credentials: true                 // Include credentials if needed
+  origin: ['https://wpproject-frontend.web.app', 'https://wpproject-frontend.firebaseapp.com'], // frontend's URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow only the necessary methods
+  credentials: true // Include credentials if needed
 }));
-
 
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
 
+// Configure MySQL session store
+const sessionStoreOptions = {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT
+};
+const sessionStore = new MySQLStore(sessionStoreOptions);
+
 // Configure session middleware
 app.use(session({
-  secret: 'mysecretkey',   // Using the strong key generated above
+  secret: process.env.SESSION_SECRET || 'fallback-secret-key', // Use environment variable for the secret
   resave: false,
   saveUninitialized: false,
+  store: sessionStore, // Use the MySQL session store
   cookie: { 
     httpOnly: true, // Ensures the cookie is only accessible through HTTP
-    secure: true,     // Set to true if using HTTPS in production
-    maxAge: 1000 * 60 * 60 * 24,  // Session valid for 1 day
+    secure: true, // Set to true if using HTTPS in production
+    maxAge: 1000 * 60 * 60 * 24, // Session valid for 1 day
     sameSite: 'None'
   }
 }));
