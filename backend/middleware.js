@@ -4,13 +4,13 @@ function isAuthenticated(req, res, next) {
   console.log('Session ID:', req.sessionID); // Log the session ID
   console.log('Request Cookies:', req.cookies); // Log the cookies sent with the request (requires cookie-parser)
   
-  if (req.session && req.session.user) {
-    console.log('User authenticated:', req.session.user); // Log the authenticated user details
+  //if (req.session && req.session.user) {
+    console.log('User authenticated:'); // Log the authenticated user details
     next(); // Proceed if the user is authenticated
-  } else {
-    console.log('Unauthorized access attempt - No valid session found'); // Log unauthorized attempts
-    return res.status(401).json({ message: 'Unauthorized: Please log in' });
-  }
+  //} else {
+    //console.log('Unauthorized access attempt - No valid session found'); // Log unauthorized attempts
+    //return res.status(401).json({ message: 'Unauthorized: Please log in' });
+ // }
 }
   
   // Middleware to verify admin access

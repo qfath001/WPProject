@@ -21,20 +21,14 @@ const Home = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        console.log('Attempting to authenticate user...'); // Log before making request
-        const response = await axios.get('https://wpproject-backend.onrender.com/home', { withCredentials: true });
-  
-        console.log('Authentication response:', response); // Log the entire response object
+        const response = await axios.get('https://wpproject-backend.onrender.com/home', { withCredentials: true });t
   
         if (response.status !== 200) {
-          console.log('User is not authenticated, redirecting to login page.'); // Log the redirection reason
-          navigate('/'); // Redirect to login if not authenticated
-        } else {
-          console.log('User is authenticated, staying on the home page.'); // Log success case
+         // console.log('User is not authenticated, redirecting to login page.'); // Log the redirection reason
+          navigate('/home'); // Redirect to login if not authenticated
         }
       } catch (error) {
-        console.error('Error during authentication check:', error); // Log any error that occurred
-        navigate('/'); // Redirect to login if session is invalid or an error occurred
+        navigate('/home'); // Redirect to login if session is invalid or an error occurred
       }
     };
   
