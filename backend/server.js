@@ -444,6 +444,8 @@ app.post('/signup', async (req, res) => {
 
               // Log session information for debugging
           console.log('Session after setting user:', req.session);
+          // Explicitly set the session cookie in the response header
+          res.setHeader('Set-Cookie', `connect.sid=${req.sessionID}; HttpOnly; Secure; SameSite=None; Path=/`);
 
               return res.status(200).json({ message: 'OTP sent. Please verify to continue.', email, isAdmin: user.is_admin });
             });
