@@ -1,24 +1,26 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { ThemeProvider, CssBaseline } from '@mui/material'; // Import Material UI's ThemeProvider and CssBaseline
-import theme from './theme/theme';  // Correct import path for theme
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import theme from './theme/theme';
 
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import Home from './components/Home';
 import ForgotPassword from './components/ForgotPassword';
 import VerifyOtp from './components/VerifyOtp';
-import ChangePassword from './components/ChangePassword'; // Import ChangePassword component
-import Profile from './components/Profile'; // Import Profile component
-import AdminDashboard from './components/AdminDashboard'; // Import AdminDashboard component
-import PrerequisiteForm from './components/PrerequisiteForm';  // Import PrerequisiteForm component
-import CourseAdvisingHistory from './components/CourseAdvisingHistory'; // Import CourseAdvisingHistory component
-import CourseAdvisingForm from './components/CourseAdvisingForm'; // Import the CourseAdvisingForm component
+import ChangePassword from './components/ChangePassword';
+import Profile from './components/Profile';
+import AdminDashboard from './components/AdminDashboard';
+import PrerequisiteForm from './components/PrerequisiteForm';
+import CourseAdvisingHistory from './components/CourseAdvisingHistory';
+import CourseAdvisingForm from './components/CourseAdvisingForm';
+import AdminAdvisingSheets from './components/AdminAdvisingSheets'; // Import AdminAdvisingSheets component
+import AdminAdvisingForm from './components/AdminAdvisingForm'; // Import AdminAdvisingForm component
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}> {/* Wrap the app with ThemeProvider */}
-      <CssBaseline /> {/* Ensures consistent baseline styling across browsers */}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Router>
         <Routes>
           {/* Sign in route */}
@@ -31,7 +33,7 @@ const App = () => {
           <Route path="/home" element={<Home />} />
 
           {/* Profile route */}
-          <Route path="/profile" element={<Profile />} /> {/* Added Profile route */}
+          <Route path="/profile" element={<Profile />} />
 
           {/* Forgot password route */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -43,17 +45,22 @@ const App = () => {
           <Route path="/change-password" element={<ChangePassword />} />
 
           {/* Admin dashboard route */}
-          <Route path="/admin-dashboard" element={<AdminDashboard />} /> {/* Added Admin Dashboard route */}
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
           {/* Pre-requisites Form route */}
           <Route path="/admin/prerequisites" element={<PrerequisiteForm />} />
 
           {/* Advising History Form route */}
-          <Route path="/student/advising-history" element={<CourseAdvisingHistory />} /> {/* Added Course Advising History route */}
+          <Route path="/student/advising-history" element={<CourseAdvisingHistory />} />
 
           {/* Advising Form route */}
-          <Route path="/student/advising-form" element={<CourseAdvisingForm />} /> {/* Added Course Advising Form route */}
+          <Route path="/student/advising-form" element={<CourseAdvisingForm />} />
 
+          {/* Admin Advising Sheets route */}
+          <Route path="/admin/advising-sheets" element={<AdminAdvisingSheets />} /> {/* New Route for Admin Advising Sheets */}
+
+          {/* Admin Advising Form route */}
+          <Route path="/admin/advising-form/:studentId" element={<AdminAdvisingForm />} /> {/* New Route for Admin Advising Form */}
         </Routes>
       </Router>
     </ThemeProvider>
