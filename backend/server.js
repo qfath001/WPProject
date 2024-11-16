@@ -40,17 +40,7 @@ app.use(cors({
   origin: 'https://wpproject-frontend.web.app',  // frontend's URL
   methods: ['GET', 'POST','PUT', 'DELETE'],         // Allow only the necessary methods
   credentials: true,                 // Include credentials if needed
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']  // Allowed headers
 }));
-
-// Middleware for setting custom headers
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://wpproject-frontend.web.app');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  next();
-});
 
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
