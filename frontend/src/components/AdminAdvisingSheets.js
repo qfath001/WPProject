@@ -40,7 +40,7 @@ const AdminAdvisingSheets = () => {
             {advisingSheets.map(sheet => (
               <TableRow key={sheet.id}>
                 <TableCell>
-                  <Link to={`/admin/advising-sheet/${sheet.id}`}>
+                  <Link to={`/admin/advising-form/${sheet.id}`}>
                     {sheet.firstName} {sheet.lastName}
                   </Link>
                 </TableCell>

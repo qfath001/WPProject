@@ -61,6 +61,9 @@ router.get('/advising-sheet/:id', (req, res) => {
       console.error('Error fetching advising sheet:', err);
       return res.status(500).json({ message: 'Error fetching advising sheet' });
     }
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'Advising sheet not found' });
+    }
     res.json(result[0]);
   });
 });
@@ -69,7 +72,12 @@ router.get('/advising-sheet/:id', (req, res) => {
 router.put('/advising-sheet/:id', (req, res) => {
   const { id } = req.params;
   const { status, message } = req.body;
-  
+
+  // Optional validation for status and message
+  if (!status || !message) {
+    return res.status(400).json({ message: 'Status and message are required' });
+  }
+
   const query = `
     UPDATE advising_history SET status = ?, admin_message = ? WHERE id = ?
   `;
@@ -78,6 +86,9 @@ router.put('/advising-sheet/:id', (req, res) => {
     if (err) {
       console.error('Error updating advising sheet:', err);
       return res.status(500).json({ message: 'Error updating advising sheet' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Advising sheet not found' });
     }
     res.json({ message: 'Advising sheet updated successfully' });
   });
