@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./db'); // Assuming db connection is in db.js
+const transporter = require('./server'); // Importing the transporter
 
 // Fetch Courses API
 router.get('/courses', (req, res) => {
@@ -72,9 +73,7 @@ router.get('/advising-sheet/:id', (req, res) => {
 router.put('/advising-sheet/:id', (req, res) => {
   const { id } = req.params;
   const { status, message } = req.body;
-  console.log('Received data:', { id, status, message }); // Log incoming data
-  
-  // Optional validation for status and message
+
   if (!status || !message) {
     return res.status(400).json({ message: 'Status and message are required' });
   }
@@ -91,7 +90,36 @@ router.put('/advising-sheet/:id', (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Advising sheet not found' });
     }
-    res.json({ message: 'Advising sheet updated successfully' });
+
+    // Fetch the student's email to send the notification
+    const fetchStudentQuery = `
+      SELECT student_email, term FROM advising_history WHERE id = ?
+    `;
+    db.query(fetchStudentQuery, [id], (err, fetchResult) => {
+      if (err || fetchResult.length === 0) {
+        console.error('Error fetching student email:', err);
+        return res.status(500).json({ message: 'Error fetching student email' });
+      }
+
+      const { student_email, term } = fetchResult[0];
+
+      // Send email notification
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: student_email,
+        subject: `Advising Decision for Term ${term}`,
+        text: `Your advisor has ${status.toLowerCase()} your Course Advising Form for the term ${term}.\n\nAdmin Message: ${message}`
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending email:', error);
+          return res.status(500).json({ message: 'Advising sheet updated, but failed to send email notification.' });
+        }
+        console.log('Email sent: ' + info.response);
+        res.json({ message: 'Advising sheet updated and email sent successfully' });
+      });
+    });
   });
 });
 
