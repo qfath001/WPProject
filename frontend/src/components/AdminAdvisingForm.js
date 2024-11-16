@@ -14,7 +14,7 @@ const AdminAdvisingForm = () => {
   useEffect(() => {
     const fetchAdvisingData = async () => {
       try {
-        const response = await axios.get(`https://wpproject-backend.onrender.com/admin/advising-sheet/${studentId}`);
+        const response = await axios.put(`https://wpproject-backend.onrender.com/admin/advising-sheet/${studentId}`, {status,message}, { withCredentials: true });
         setAdvisingData(response.data);
         setStatus(response.data.status); // Set initial status
       } catch (err) {
