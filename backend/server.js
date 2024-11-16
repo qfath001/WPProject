@@ -39,8 +39,16 @@ const sessionStore = new MySQLStore({}, db);
 app.use(cors({
   origin: 'https://wpproject-frontend.web.app',  // frontend's URL
   methods: ['GET', 'POST','PUT', 'DELETE'],         // Allow only the necessary methods
-  credentials: true                 // Include credentials if needed
+  credentials: true,                 // Include credentials if needed
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']  // Allowed headers
 }));
+
+// Middleware to set custom headers for CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 
 app.use(bodyParser.json());
 app.use(cookieParser()); // Add this before the routes
