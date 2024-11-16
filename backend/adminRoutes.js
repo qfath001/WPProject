@@ -70,12 +70,10 @@ router.get('/advising-sheet/:id', (req, res) => {
 });
 
 // Update advising sheet status and add admin message
+// Update advising sheet status and add admin message
 router.put('/advising-sheet/:id', (req, res) => {
   const { id } = req.params;
   const { status, message } = req.body;
-
-  console.log(`Received request to update advising sheet with id: ${id}`);
-  console.log(`Status: ${status}, Message: ${message}`);
 
   if (!status || !message) {
     return res.status(400).json({ message: 'Status and message are required' });
