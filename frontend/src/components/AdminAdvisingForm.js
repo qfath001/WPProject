@@ -28,17 +28,18 @@ const AdminAdvisingForm = () => {
   const handleSubmit = async () => {
     if (!status || !message) {
       setError('Status and message are required.');
-      return;
+      return; // Ensure it stops execution here
     }
     try {
       await axios.put(`https://wpproject-backend.onrender.com/admin/advising-sheet/${studentId}`, {
         status,
         message,
       });
+      setError(''); // Clear any previous errors on successful submission
       alert('Decision submitted successfully!');
     } catch (err) {
       console.error('Error submitting decision:', err);
-      setError('Failed to submit decision.');
+      setError(`Failed to submit decision. ${err.response?.data?.message || err.message}`);
     }
   };  
 
