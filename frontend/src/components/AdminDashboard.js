@@ -29,6 +29,12 @@ const AdminDashboard = () => {
     navigate('/admin/prerequisites');
   };
 
+  // Navigate to the Advising Sheets page
+  const handleNavigateAdvisingSheets = () => {
+    handleMenuClose();
+    navigate('/admin/advising-sheets');
+  };
+
   const handleLogout = () => {
     navigate('/');
   };
@@ -58,6 +64,7 @@ const AdminDashboard = () => {
             onClose={handleMenuClose}
           >
             <MenuItem onClick={handleNavigatePrerequisiteForm}>Pre-requisite Form</MenuItem>
+            <MenuItem onClick={handleNavigateAdvisingSheets}>Advising Sheets</MenuItem> {/* New menu item */}
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Grid>
