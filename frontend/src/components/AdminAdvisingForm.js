@@ -26,6 +26,10 @@ const AdminAdvisingForm = () => {
   }, [studentId]);
 
   const handleSubmit = async () => {
+    if (!status || !message) {
+      setError('Status and message are required.');
+      return;
+    }
     try {
       await axios.put(`https://wpproject-backend.onrender.com/admin/advising-sheet/${studentId}`, {
         status,
@@ -36,7 +40,7 @@ const AdminAdvisingForm = () => {
       console.error('Error submitting decision:', err);
       setError('Failed to submit decision.');
     }
-  };
+  };  
 
   if (!advisingData) {
     return <Typography>Loading...</Typography>; // Show loading state while fetching data

@@ -72,7 +72,8 @@ router.get('/advising-sheet/:id', (req, res) => {
 router.put('/advising-sheet/:id', (req, res) => {
   const { id } = req.params;
   const { status, message } = req.body;
-
+  console.log('Received data:', { id, status, message }); // Log incoming data
+  
   // Optional validation for status and message
   if (!status || !message) {
     return res.status(400).json({ message: 'Status and message are required' });
