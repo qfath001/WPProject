@@ -32,9 +32,9 @@ router.post('/update-course', (req, res) => {
 // Fetch all advising sheets for admin
 router.get('/advising-sheets', (req, res) => {
   const query = `
-    SELECT ah.id, u.firstName, u.lastName, u.uin, ah.term, ah.status, ah.student_email
+    SELECT ah.id, u.firstName, u.lastName, u.uin, ah.term, ah.status, ah.email
     FROM advising_history ah
-    JOIN users u ON ah.student_email = u.email
+    JOIN users u ON ah.email = u.email
     ORDER BY ah.date_submitted DESC
   `;
   
@@ -53,7 +53,7 @@ router.get('/advising-sheet/:id', (req, res) => {
   const query = `
     SELECT ah.*, u.firstName, u.lastName, u.uin
     FROM advising_history ah
-    JOIN users u ON ah.student_email = u.email
+    JOIN users u ON ah.email = u.email
     WHERE ah.id = ?
   `;
 
@@ -93,7 +93,7 @@ router.put('/advising-sheet/:id', (req, res) => {
 
     // Fetch the student's email to send the notification
     const fetchStudentQuery = `
-      SELECT student_email, term FROM advising_history WHERE id = ?
+      SELECT email, term FROM advising_history WHERE id = ?
     `;
     db.query(fetchStudentQuery, [id], (err, fetchResult) => {
       if (err) {
@@ -104,12 +104,12 @@ router.put('/advising-sheet/:id', (req, res) => {
         return res.status(404).json({ message: 'Student not found for given advising sheet.' });
       }
 
-      const { student_email, term } = fetchResult[0];
+      const { email, term } = fetchResult[0];
 
       // Send email notification
       const mailOptions = {
         from: process.env.EMAIL_USER,
-        to: student_email,
+        to: email,
         subject: `Advising Decision for Term ${term}`,
         text: `Your advisor has ${status.toLowerCase()} your Course Advising Form for the term ${term}.\n\nAdmin Message: ${message}`
       };
