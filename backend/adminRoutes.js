@@ -70,7 +70,6 @@ router.get('/advising-sheet/:id', (req, res) => {
 });
 
 // Update advising sheet status and add admin message
-// Update advising sheet status and add admin message
 router.put('/advising-sheet/:id', (req, res) => {
   const { id } = req.params;
   const { status, message } = req.body;
@@ -97,9 +96,12 @@ router.put('/advising-sheet/:id', (req, res) => {
       SELECT student_email, term FROM advising_history WHERE id = ?
     `;
     db.query(fetchStudentQuery, [id], (err, fetchResult) => {
-      if (err || fetchResult.length === 0) {
+      if (err) {
         console.error('Error fetching student email:', err);
         return res.status(500).json({ message: 'Error fetching student email' });
+      }
+      if (fetchResult.length === 0) {
+        return res.status(404).json({ message: 'Student not found for given advising sheet.' });
       }
 
       const { student_email, term } = fetchResult[0];
