@@ -93,8 +93,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-module.exports = transporter;
-
 // Salt rounds for bcrypt password hashing
 const saltRounds = 10;
 

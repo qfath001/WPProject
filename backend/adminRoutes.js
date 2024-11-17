@@ -1,7 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./db'); // Assuming db connection is in db.js
-const transporter = require('./server'); // Importing the transporter
+const nodemailer = require('nodemailer');
+
+// Create transporter for nodemailer (using Gmail as an example, configure as per your need)
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // Use your preferred email service
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS 
+  }
+});
 
 // Fetch Courses API
 router.get('/courses', (req, res) => {
@@ -91,36 +100,41 @@ router.put('/advising-sheet/:id', (req, res) => {
       return res.status(404).json({ message: 'Advising sheet not found' });
     }
 
-    // Fetch the student's email to send the notification
+    // Fetch the student data after updating
     const fetchStudentQuery = `
-      SELECT student_email, term FROM advising_history WHERE id = ?
+      SELECT u.email, u.firstName, ah.term
+      FROM advising_history ah
+      JOIN users u ON ah.student_email = u.email
+      WHERE ah.id = ?
     `;
-    db.query(fetchStudentQuery, [id], (err, fetchResult) => {
-      if (err) {
-        console.error('Error fetching student email:', err);
-        return res.status(500).json({ message: 'Error fetching student email' });
+
+    db.query(fetchStudentQuery, [id], (fetchErr, fetchResult) => {
+      if (fetchErr) {
+        console.error('Error fetching student data:', fetchErr);
+        return res.status(500).json({ message: 'Error fetching student data' });
       }
+
       if (fetchResult.length === 0) {
-        return res.status(404).json({ message: 'Student not found for given advising sheet.' });
+        return res.status(404).json({ message: 'Student data not found' });
       }
 
-      const { student_email, term } = fetchResult[0];
-
-      // Send email notification
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: student_email,
-        subject: `Advising Decision for Term ${term}`,
-        text: `Your advisor has ${status.toLowerCase()} your Course Advising Form for the term ${term}.\n\nAdmin Message: ${message}`
+      const student = fetchResult[0];
+      const emailOptions = {
+        from: process.env.EMAIL_USER, // Replace with your email
+        to: student.email,
+        subject: `Advising Decision for ${student.term}`,
+        text: `Dear ${student.firstName},\n\nYour advisor has ${status} your Course Advising Form for the semester ${student.term}.\n\nMessage from your advisor: ${message}\n\nBest regards,\nCourse Advising Team`
       };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error('Error sending email:', error);
-          return res.status(500).json({ message: 'Advising sheet updated, but failed to send email notification.' });
+      // Send email
+      transporter.sendMail(emailOptions, (emailErr, info) => {
+        if (emailErr) {
+          console.error('Error sending email:', emailErr);
+          // Log the error but still return success for the main operation
+          return res.status(500).json({ message: 'Advising sheet updated but failed to send email notification' });
         }
         console.log('Email sent: ' + info.response);
-        res.json({ message: 'Advising sheet updated and email sent successfully' });
+        res.json({ message: 'Advising sheet updated successfully, email sent' });
       });
     });
   });
