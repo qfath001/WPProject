@@ -2,5 +2,5 @@ This favicon was generated using the following font:
 
 - Font Title: Roboto
 - Font Author: undefined
-- Font Source: https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf
+- Font Source: https://fonts.gstatic.com/s/roboto/v32/KFOlCnqEu92Fr1MmWUlvAx05IsDqlA.ttf
 - Font License: undefined)
