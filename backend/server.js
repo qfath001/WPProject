@@ -21,6 +21,7 @@ const { verifyAdmin , isAuthenticated } = require('./middleware'); // Import ver
 const studentRoutes = require('./studentRoutes'); // To import for student routes
 const advisingRoutes = require('./advisingRoutes');
 const cookieParser = require('cookie-parser');
+const axios = require('axios'); // Import axios for HTTP requests
 
 const app = express();
 
@@ -324,59 +325,115 @@ app.post('/signup', async (req, res) => {
     }
   });  
 
-  // Login route with 2FA (OTP)
-  app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-  
-    // Normalize the email to avoid case sensitivity issues
-    const normalizedEmail = email.toLowerCase().trim();
-  
-    const query = 'SELECT * FROM users WHERE email = ?';
-  
-    db.query(query, [normalizedEmail], (err, result) => {
+// Login route with 2FA (OTP) and reCAPTCHA verification
+app.post('/login', async (req, res) => {
+  const { email, password, recaptchaToken } = req.body;
+
+  // Verify the reCAPTCHA token with Google's API
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY; // Replace with your secret key stored in environment variable
+  const recaptchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
+
+  try {
+    const recaptchaResponse = await axios.post(recaptchaVerifyUrl);
+    if (!recaptchaResponse.data.success) {
+      return res.status(400).json({ message: 'reCAPTCHA verification failed. Please try again.' });
+    }
+  } catch (error) {
+    console.error('Error verifying reCAPTCHA:', error);
+    return res.status(500).json({ message: 'Server error while verifying reCAPTCHA' });
+  }
+
+  // Normalize the email to avoid case sensitivity issues
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const query = 'SELECT * FROM users WHERE email = ?';
+
+  db.query(query, [normalizedEmail], (err, result) => {
+    if (err) {
+      console.error('Error querying the database:', err);
+      return res.status(500).json({ message: 'Server error while checking email' });
+    }
+
+    if (result.length === 0) {
+      return res.status(400).json({ message: 'Invalid email or user does not exist' });
+    }
+
+    const user = result[0];
+
+    // Compare the provided password with the stored hashed password
+    bcrypt.compare(password, user.password, (err, isMatch) => {
       if (err) {
-        console.error('Error querying the database:', err);
-        return res.status(500).json({ message: 'Server error while checking email' });
+        console.error('Error comparing passwords:', err);
+        return res.status(500).json({ message: 'Server error while comparing passwords' });
       }
-  
-      if (result.length === 0) {
-        return res.status(400).json({ message: 'Invalid email or user does not exist' });
+
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid password' });
       }
-  
-      const user = result[0];
-  
-      // Compare the provided password with the stored hashed password
-      bcrypt.compare(password, user.password, (err, isMatch) => {
-        if (err) {
-          console.error('Error comparing passwords:', err);
-          return res.status(500).json({ message: 'Server error while comparing passwords' });
-        }
-  
-        if (!isMatch) {
-          return res.status(400).json({ message: 'Invalid password' });
-        }
-  
-        const currentTime = Date.now();
-  
-        // Check if a valid OTP already exists (within 5 minutes)
-        if (user.otp && user.otp_expiration && user.otp_expiration > currentTime) {
-          console.log('OTP still valid. Resending the same OTP.');
-  
+
+      const currentTime = Date.now();
+
+      // Check if a valid OTP already exists (within 5 minutes)
+      if (user.otp && user.otp_expiration && user.otp_expiration > currentTime) {
+        console.log('OTP still valid. Resending the same OTP.');
+
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'Your OTP for login',
+          text: `Your OTP is: ${user.otp}. It will expire in ${Math.round((user.otp_expiration - currentTime) / 60000)} minutes.`,
+        };
+
+        transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.error('Error resending OTP email:', err);
+            return res.status(500).json({ message: 'Error resending OTP email' });
+          }
+
+          console.log(`OTP resent to ${email}: ${info.response}`);
+
+          // Set the session with email and admin status
+          req.session.user = {
+            email: normalizedEmail,
+            isAdmin: user.is_admin
+          };
+
+          // Log session information for debugging
+          console.log('Session after setting user:', req.session);
+
+          return res.status(200).json({ message: 'OTP resent. Please verify to continue.', email, isAdmin: user.is_admin });
+        });
+
+      } else {
+        // No valid OTP exists or it has expired, generate a new one
+        const otp = generateOTP();
+        const otpExpiration = currentTime + 5 * 60 * 1000; // OTP valid for 5 minutes
+
+        const otpQuery = 'UPDATE users SET otp = ?, otp_expiration = ? WHERE email = ?';
+        db.query(otpQuery, [otp, otpExpiration, normalizedEmail], (err) => {
+          if (err) {
+            console.error('Error storing OTP in the database:', err);
+            return res.status(500).json({ message: 'Error storing OTP' });
+          }
+
+          console.log(`Generated OTP for ${normalizedEmail}: ${otp}`);
+
+          // Send OTP via email
           const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Your OTP for login',
-            text: `Your OTP is: ${user.otp}. It will expire in ${Math.round((user.otp_expiration - currentTime) / 60000)} minutes.`,
+            text: `Your OTP is: ${otp}. It will expire in 5 minutes.`,
           };
-  
+
           transporter.sendMail(mailOptions, (err, info) => {
             if (err) {
-              console.error('Error resending OTP email:', err);
-              return res.status(500).json({ message: 'Error resending OTP email' });
+              console.error('Error sending OTP email:', err);
+              return res.status(500).json({ message: 'Error sending OTP email' });
             }
-  
-            console.log(`OTP resent to ${email}: ${info.response}`);
-  
+
+            console.log(`OTP sent to ${email}: ${info.response}`);
+
             // Set the session with email and admin status
             req.session.user = {
               email: normalizedEmail,
@@ -384,58 +441,16 @@ app.post('/signup', async (req, res) => {
             };
 
             // Log session information for debugging
-          console.log('Session after setting user:', req.session);
-  
-            return res.status(200).json({ message: 'OTP resent. Please verify to continue.', email, isAdmin: user.is_admin });
-          });
-  
-        } else {
-          // No valid OTP exists or it has expired, generate a new one
-          const otp = generateOTP();
-          const otpExpiration = currentTime + 5 * 60 * 1000; // OTP valid for 5 minutes
-  
-          const otpQuery = 'UPDATE users SET otp = ?, otp_expiration = ? WHERE email = ?';
-          db.query(otpQuery, [otp, otpExpiration, normalizedEmail], (err) => {
-            if (err) {
-              console.error('Error storing OTP in the database:', err);
-              return res.status(500).json({ message: 'Error storing OTP' });
-            }
-  
-            console.log(`Generated OTP for ${normalizedEmail}: ${otp}`);
-  
-            // Send OTP via email
-            const mailOptions = {
-              from: process.env.EMAIL_USER,
-              to: email,
-              subject: 'Your OTP for login',
-              text: `Your OTP is: ${otp}. It will expire in 5 minutes.`,
-            };
-  
-            transporter.sendMail(mailOptions, (err, info) => {
-              if (err) {
-                console.error('Error sending OTP email:', err);
-                return res.status(500).json({ message: 'Error sending OTP email' });
-              }
-  
-              console.log(`OTP sent to ${email}: ${info.response}`);
-  
-              // Set the session with email and admin status
-              req.session.user = {
-                email: normalizedEmail,
-                isAdmin: user.is_admin
-              };
+            console.log('Session after setting user:', req.session);
 
-              // Log session information for debugging
-          console.log('Session after setting user:', req.session);
-
-              return res.status(200).json({ message: 'OTP sent. Please verify to continue.', email, isAdmin: user.is_admin });
-            });
+            return res.status(200).json({ message: 'OTP sent. Please verify to continue.', email, isAdmin: user.is_admin });
           });
-        }
-      });
+        });
+      }
     });
   });
-  
+});
+
 // OTP Verification route for sign-up, login, and forgot-password
 app.post('/verify-otp', (req, res) => {
   const { email, otp, action } = req.body;  // Add action ('signup', 'login', or 'forgot-password')

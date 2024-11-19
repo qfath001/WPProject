@@ -2,19 +2,21 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Button, TextField, Typography, Grid, Container, Link } from '@mui/material';
-import { Facebook, Twitter, Instagram } from '@mui/icons-material'; // Import icons
+import { Facebook, Twitter, Instagram } from '@mui/icons-material';
 import oduLogo from '../assets/odu-logo.png'; // ODU logo image
+import ReCAPTCHA from 'react-google-recaptcha'; // Import ReCAPTCHA component
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState(''); // State to hold reCAPTCHA token
   const navigate = useNavigate();
 
   // Set the page title when component is mounted
   useEffect(() => {
-    document.title = 'Sign In'; // Set title for the sign-in page
+    document.title = 'Sign In';
   }, []);
 
   // Handle login and send OTP
@@ -23,13 +25,17 @@ const SignIn = () => {
     setLoading(true);
     setErrorMessage('');
 
-    try {
-      const response = await axios.post('https://wpproject-backend.onrender.com/login', { email, password });
+    if (!recaptchaToken) {
+      setErrorMessage('Please verify that you are not a robot.');
+      setLoading(false);
+      return;
+    }
 
-      // Check if OTP was sent successfully
+    try {
+      const response = await axios.post('https://wpproject-backend.onrender.com/login', { email, password, recaptchaToken });
+
       if (response.data.message.includes('OTP')) {
         const isAdmin = response.data.isAdmin;
-        // Confirm with user to redirect to OTP page
         if (window.confirm('OTP has been sent to your email. Click "OK" to verify.')) {
           navigate(`/verify-otp`, { state: { email, action: 'login', isAdmin } });
         }
@@ -94,6 +100,15 @@ const SignIn = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={loading}
+                  />
+                </Grid>
+
+                {/* reCAPTCHA Widget */}
+                <Grid item xs={12}>
+                  <ReCAPTCHA
+                    sitekey="6Ld94oMqAAAAAN4FzimXxbI4bzqR9-TndJxFGl91" // Replace with your actual site key
+                    onChange={(token) => setRecaptchaToken(token)}
+                    onExpired={() => setRecaptchaToken('')} // Clear token when expired
                   />
                 </Grid>
 
