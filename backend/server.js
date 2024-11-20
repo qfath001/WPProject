@@ -35,6 +35,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve static files from the public folder
+app.use(express.static('public'));
+
 // MySQL connection configuration for session store
 const db = mysql.createConnection({
   host: process.env.DB_HOST,

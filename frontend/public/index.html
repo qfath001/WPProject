@@ -11,8 +11,10 @@
     <!-- Prevent Clickjacking -->
     <script>
         if (window.self !== window.top) {
-            // Redirect to top-level window
-            window.top.location.href = window.self.location.href;
+        console.log("Clickjacking detected: Redirecting to top-level window.");
+        window.top.location.href = window.self.location.href;
+        } else {
+        console.log("No iframe detected: Safe to proceed.");
         }
     </script>
 </head>
