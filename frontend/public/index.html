@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,13 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon_io/favicon.ico" type="image/x-icon" />
     <!-- Google reCAPTCHA script -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- Prevent Clickjacking -->
+    <script>
+        if (window.self !== window.top) {
+            // Redirect to top-level window
+            window.top.location.href = window.self.location.href;
+        }
+    </script>
 </head>
 <body>
     <div id="root"></div>

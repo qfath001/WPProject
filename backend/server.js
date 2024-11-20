@@ -25,6 +25,15 @@ const axios = require('axios'); // Import axios for HTTP requests
 
 const app = express();
 
+// Add middleware for clickjacking prevention
+app.use((req, res, next) => {
+  // Prevents embedding in any iframe
+  res.setHeader('X-Frame-Options', 'DENY'); 
+  // Optionally, you can use SAMEORIGIN to allow embedding from your own site
+  // res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  next();
+});
+
 // MySQL connection configuration for session store
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
