@@ -29,6 +29,7 @@ const app = express();
 app.use((req, res, next) => {
   // Prevents embedding in any iframe
   res.setHeader('X-Frame-Options', 'DENY'); 
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'");
   // Optionally, you can use SAMEORIGIN to allow embedding from your own site
   // res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   next();
