@@ -35,8 +35,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files from the public folder
-app.use(express.static('public'));
+app.use('/test-files', express.static('test-files'));
 
 // MySQL connection configuration for session store
 const db = mysql.createConnection({
@@ -53,9 +52,7 @@ const sessionStore = new MySQLStore({}, db);
 app.use(cors({
   origin: 'https://wpproject-frontend.web.app',  // frontend's URL
   methods: ['GET', 'POST','PUT', 'DELETE'],         // Allow only the necessary methods
-  credentials: true,                 // Include credentials if needed
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200 // Ensures compatibility with older browsers
+  credentials: true                 // Include credentials if needed
 }));
 
 app.use(bodyParser.json());
