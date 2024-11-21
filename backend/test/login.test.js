@@ -1,12 +1,14 @@
+import chai from 'chai';
+import chaiHttp from 'chai-http';
 import { expect } from 'chai';
-const chaiHttp = require('chai-http');
-const server = require('../server.js'); // Ensure the `.js` extension is included for ES modules
+import server from '../server.js'; // Ensure `.js` is included for ES module compatibility
 
 chai.use(chaiHttp);
 
 describe('POST /login', () => {
   it('should return OTP when valid credentials are provided', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/login')
       .send({
         email: 'qurrafathima56@gmail.com', // Replace with a valid test user email
@@ -21,7 +23,8 @@ describe('POST /login', () => {
   });
 
   it('should return an error for invalid credentials', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/login')
       .send({
         email: 'wronguser@example.com',
@@ -36,7 +39,8 @@ describe('POST /login', () => {
   });
 
   it('should return an error for failed reCAPTCHA', (done) => {
-    chai.request(server)
+    chai
+      .request(server)
       .post('/login')
       .send({
         email: 'qurrafathima56@gmail.com', // Replace with a valid test user email
