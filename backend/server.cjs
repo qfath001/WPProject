@@ -3,5 +3,5 @@ async function loadServer() {
     return server.default || server; // Return the default export or the module itself
   }
   
-  module.exports = loadServer; // Export the async loader function for use in tests
+  export default loadServer; // Use ESM syntax for compatibility
   

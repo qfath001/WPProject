@@ -1,6 +1,6 @@
 import * as chai from 'chai';
 import chaiHttp from 'chai-http';
-import loadServer from '../server.cjs'; // Import the loader function
+import loadServer from '../server.cjs'; // Import the dynamic loader
 
 const { expect } = chai;
 chai.use(chaiHttp);
