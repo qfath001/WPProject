@@ -1,7 +1,6 @@
-const chai = require('chai');
+import { expect } from 'chai';
 const chaiHttp = require('chai-http');
 const server = require('../server.js'); // Ensure the `.js` extension is included for ES modules
-const { expect } = chai;
 
 chai.use(chaiHttp);
 
