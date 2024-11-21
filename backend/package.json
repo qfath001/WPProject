@@ -21,7 +21,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "mocha ./test/**/*.test.js --require @babel/register"
+    "test": "mocha"
   }
 }
    
