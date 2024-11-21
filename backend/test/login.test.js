@@ -4,13 +4,7 @@ import chaiHttp from 'chai-http';
 const { expect } = chai;
 chai.use(chaiHttp);
 
-let server;
-
-before(async () => {
-  // Dynamically import the server.js file
-  const importedServer = await import('../server.js');
-  server = importedServer.default || importedServer; // Ensure compatibility with default export
-});
+const server = await import('../server.cjs'); // Import the wrapper file dynamically
 
 describe('POST /login', () => {
   it('should return OTP when valid credentials are provided', (done) => {
