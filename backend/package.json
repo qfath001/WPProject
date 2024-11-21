@@ -19,9 +19,18 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/register": "^7.25.9"
   },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1"
+  },
   "scripts": {
     "start": "node server.js",
-    "test": "mocha"
+    "test": "mocha --experimental-specifier-resolution=node"
+  },
+  "engines": {
+    "node": ">=18 <23"
+  },
+  "mocha": {
+    "node-option": ["experimental-specifier-resolution=node"]
   }
 }
-   
