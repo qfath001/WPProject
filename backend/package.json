@@ -17,6 +17,6 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "mocha --require @babel/register --recursive ./test/**/*.test.js"
+    "test": "mocha ./test/**/*.test.js"
   }
 }
