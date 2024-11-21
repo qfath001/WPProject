@@ -1,6 +1,6 @@
-import chai from 'chai';
+import { expect } from 'chai'; // Use named import for 'expect'
 import chaiHttp from 'chai-http';
-import { expect } from 'chai';
+import chai from 'chai'; // Import chai separately to attach chai-http
 import server from '../server.js'; // Ensure `.js` is included for ES module compatibility
 
 chai.use(chaiHttp);
