@@ -1,12 +1,16 @@
 import * as chai from 'chai'; // Import all as chai
 import chaiHttp from 'chai-http';
-import { createRequire } from 'module'; // Import createRequire to load CommonJS modules
-
-const require = createRequire(import.meta.url); // Create a CommonJS require
-const server = require('../server.js'); // Load server.js using CommonJS require
 
 const { expect } = chai;
 chai.use(chaiHttp);
+
+let server;
+
+before(async () => {
+  // Dynamically import the server.js file
+  const importedServer = await import('../server.js');
+  server = importedServer.default || importedServer; // Ensure compatibility with default export
+});
 
 describe('POST /login', () => {
   it('should return OTP when valid credentials are provided', (done) => {
