@@ -1,20 +1,17 @@
 import * as chai from 'chai'; // Import all as chai
 import chaiHttp from 'chai-http';
+import { createRequire } from 'module'; // Import createRequire to load CommonJS modules
+
+const require = createRequire(import.meta.url); // Create a CommonJS require
+const server = require('../server.js'); // Load server.js using CommonJS require
 
 const { expect } = chai;
 chai.use(chaiHttp);
 
-// Dynamically import the server
-let server;
-
-before(async () => {
-  server = await import('../server.js');
-});
-
 describe('POST /login', () => {
   it('should return OTP when valid credentials are provided', (done) => {
     chai
-      .request(server.default) // Use the default export from server.js
+      .request(server)
       .post('/login')
       .send({
         email: 'qurrafathima56@gmail.com',
@@ -30,7 +27,7 @@ describe('POST /login', () => {
 
   it('should return an error for invalid credentials', (done) => {
     chai
-      .request(server.default)
+      .request(server)
       .post('/login')
       .send({
         email: 'wronguser@example.com',
@@ -46,7 +43,7 @@ describe('POST /login', () => {
 
   it('should return an error for failed reCAPTCHA', (done) => {
     chai
-      .request(server.default)
+      .request(server)
       .post('/login')
       .send({
         email: 'qurrafathima56@gmail.com',
