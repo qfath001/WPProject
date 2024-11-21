@@ -338,21 +338,30 @@ app.post('/signup', async (req, res) => {
   });  
 
 // Login route with 2FA (OTP) and reCAPTCHA verification
+// Login route with 2FA (OTP) and reCAPTCHA verification
 app.post('/login', async (req, res) => {
   const { email, password, recaptchaToken } = req.body;
 
-  // Verify the reCAPTCHA token with Google's API
-  const secretKey = process.env.RECAPTCHA_SECRET_KEY; // Replace with your secret key stored in environment variable
-  const recaptchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
-
-  try {
-    const recaptchaResponse = await axios.post(recaptchaVerifyUrl);
-    if (!recaptchaResponse.data.success) {
-      return res.status(400).json({ message: 'reCAPTCHA verification failed. Please try again.' });
+  // reCAPTCHA verification
+  if (process.env.NODE_ENV === 'test') {
+    // Mock verification for test environment
+    if (recaptchaToken !== 'mocked-recaptcha-token') {
+      return res.status(400).json({ message: 'Mock reCAPTCHA verification failed. Invalid token.' });
     }
-  } catch (error) {
-    console.error('Error verifying reCAPTCHA:', error);
-    return res.status(500).json({ message: 'Server error while verifying reCAPTCHA' });
+  } else {
+    // Live reCAPTCHA verification
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    const recaptchaVerifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
+
+    try {
+      const recaptchaResponse = await axios.post(recaptchaVerifyUrl);
+      if (!recaptchaResponse.data.success) {
+        return res.status(400).json({ message: 'reCAPTCHA verification failed. Please try again.' });
+      }
+    } catch (error) {
+      console.error('Error verifying reCAPTCHA:', error);
+      return res.status(500).json({ message: 'Server error while verifying reCAPTCHA' });
+    }
   }
 
   // Normalize the email to avoid case sensitivity issues
@@ -410,7 +419,6 @@ app.post('/login', async (req, res) => {
             isAdmin: user.is_admin
           };
 
-          // Log session information for debugging
           console.log('Session after setting user:', req.session);
 
           return res.status(200).json({ message: 'OTP resent. Please verify to continue.', email, isAdmin: user.is_admin });
@@ -452,7 +460,6 @@ app.post('/login', async (req, res) => {
               isAdmin: user.is_admin
             };
 
-            // Log session information for debugging
             console.log('Session after setting user:', req.session);
 
             return res.status(200).json({ message: 'OTP sent. Please verify to continue.', email, isAdmin: user.is_admin });
